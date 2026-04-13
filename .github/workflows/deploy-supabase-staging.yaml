@@ -26,16 +26,19 @@ jobs:
           version: latest
 
       - name: Link to Supabase (staging)
-        run: supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "$SUPABASE_DB_PASSWORD" --yes
+        run: supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "$SUPABASE_DB_PASSWORD"
 
+      # Optional: see exactly what's pending before applying
       - name: List pending migrations
-        run: supabase migration list --linked -p "$SUPABASE_DB_PASSWORD"
+        run: supabase migration list --linked
 
+      # ✅ Apply migrations by history (safe/reproducible)
       - name: Run database migrations (staging)
-        run: supabase migration up --linked --yes -p "$SUPABASE_DB_PASSWORD"
+        run: supabase migration up --linked
 
+      # Deploy Edge Functions after successful DB migrate
       - name: Deploy Edge Functions
         run: supabase functions deploy --project-ref "$SUPABASE_PROJECT_ID"
 
       - name: Done
-        run: echo "Staging deploy complete."
+        run: echo "✅ Staging deploy complete."
