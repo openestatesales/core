@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { isWaitlistConfigured, joinWaitlist } from "@/lib/waitlist";
+import { isWaitlistConfigured, joinWaitlist } from "@/apis/data/waitlist";
+import { isValidWaitlistEmail } from "@/lib/validate-email";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -11,10 +12,13 @@ export function WaitlistForm() {
   const [submitted, setSubmitted] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [fieldInvalid, setFieldInvalid] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setFieldInvalid(false);
 
     if (!isWaitlistConfigured()) {
       setError(
@@ -23,19 +27,27 @@ export function WaitlistForm() {
       return;
     }
 
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    const email = String(data.get("email") ?? "").trim();
-    if (!email) return;
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setFieldInvalid(true);
+      setError("Enter your email address.");
+      return;
+    }
+    if (!isValidWaitlistEmail(email)) {
+      setFieldInvalid(true);
+      setError("Enter a valid email address.");
+      return;
+    }
 
     setPending(true);
-    const result = await joinWaitlist(email);
+    const result = await joinWaitlist(trimmed);
     setPending(false);
 
     if (!result.ok) {
       if (result.error === "config") {
         setError("Waitlist is not configured.");
       } else if (result.message === "Invalid email") {
+        setFieldInvalid(true);
         setError("Enter a valid email address.");
       } else {
         setError(
@@ -48,7 +60,7 @@ export function WaitlistForm() {
     }
 
     setSubmitted(true);
-    form.reset();
+    setEmail("");
   }
 
   if (submitted) {
@@ -62,22 +74,33 @@ export function WaitlistForm() {
   return (
     <div className="flex w-full max-w-xl flex-col gap-3">
       <form
+        noValidate
         onSubmit={handleSubmit}
         className="flex flex-col gap-3 sm:flex-row sm:items-stretch"
       >
-        <label htmlFor="email" className="sr-only">
+        <label htmlFor="waitlist-email" className="sr-only">
           Email address
         </label>
         <Input
-          id="email"
+          id="waitlist-email"
           name="email"
-          type="email"
-          required
+          type="text"
+          inputMode="email"
           autoComplete="email"
           placeholder="your@email.com"
           disabled={pending}
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setFieldInvalid(false);
+            setError(null);
+          }}
+          aria-invalid={fieldInvalid}
+          aria-describedby={error ? "waitlist-email-error" : undefined}
           className={cn(
             "min-h-12 h-12 flex-1 rounded-xl border-zinc-700 bg-zinc-950/80 px-4 text-base text-zinc-100 placeholder:text-zinc-600 md:text-sm",
+            fieldInvalid &&
+              "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/40 dark:border-red-500 dark:focus-visible:border-red-500",
           )}
         />
         <Button
@@ -98,7 +121,11 @@ export function WaitlistForm() {
         </Button>
       </form>
       {error ? (
-        <p className="text-center text-sm text-red-400 sm:text-left" role="alert">
+        <p
+          id="waitlist-email-error"
+          className="text-center text-sm text-red-400 sm:text-left"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}
