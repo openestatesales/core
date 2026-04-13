@@ -10,21 +10,14 @@ export type JoinWaitlistResult =
   | { ok: true }
   | {
       ok: false;
-      error: "config" | "client" | "server";
+      error: "client" | "server";
       message?: string;
     };
-
-export function isWaitlistConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  );
-}
 
 export async function joinWaitlist(email: string): Promise<JoinWaitlistResult> {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
-    return { ok: false, error: "config" };
+    return { ok: false, error: "client" };
   }
 
   const { error } = await supabase.functions.invoke("waitlist", {

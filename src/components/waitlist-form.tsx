@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { isWaitlistConfigured, joinWaitlist } from "@/apis/data/waitlist";
+import { joinWaitlist } from "@/apis/data/waitlist";
 import { isValidWaitlistEmail } from "@/lib/validate-email";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -19,13 +19,6 @@ export function WaitlistForm() {
     e.preventDefault();
     setError(null);
     setFieldInvalid(false);
-
-    if (!isWaitlistConfigured()) {
-      setError(
-        "Waitlist is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-      );
-      return;
-    }
 
     const trimmed = email.trim();
     if (!trimmed) {
@@ -44,9 +37,7 @@ export function WaitlistForm() {
     setPending(false);
 
     if (!result.ok) {
-      if (result.error === "config") {
-        setError("Waitlist is not configured.");
-      } else if (result.message === "Invalid email") {
+      if (result.message === "Invalid email") {
         setFieldInvalid(true);
         setError("Enter a valid email address.");
       } else {
