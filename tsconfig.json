@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@oes/types": ["./src/types/oes/index.ts"]
     }
   },
   "include": [
