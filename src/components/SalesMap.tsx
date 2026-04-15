@@ -58,8 +58,10 @@ function formatDate(value: string): string {
 export default function SalesMap({ sales, center, distance = 25, onCenterChange }: SalesMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const centerDotRef = useRef<google.maps.Marker | null>(null);
-  const salesMarkersRef = useRef<google.maps.Marker[]>([]);
+  type AnyMarker = google.maps.Marker | google.maps.marker.AdvancedMarkerElement;
+  type AdvancedMarkerCtor = new (opts: google.maps.marker.AdvancedMarkerElementOptions) => google.maps.marker.AdvancedMarkerElement;
+  const centerDotRef = useRef<AnyMarker | null>(null);
+  const salesMarkersRef = useRef<AnyMarker[]>([]);
   const radiusCircleRef = useRef<google.maps.Circle | null>(null);
 
   const metersPerMile = 1609.34;
@@ -103,7 +105,12 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
   const clearSalesMarkers = useCallback(() => {
     // Clear existing sales markers
     salesMarkersRef.current.forEach((marker) => {
-      marker.setMap(null);
+      // AdvancedMarkerElement uses `.map = null`, classic Marker uses `.setMap(null)`
+      if ("setMap" in marker) {
+        marker.setMap(null);
+      } else {
+        marker.map = null;
+      }
     });
     salesMarkersRef.current = [];
   }, []);
@@ -129,21 +136,49 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
 
     // If marker exists, just update position
     if (centerDotRef.current) {
-      centerDotRef.current.setPosition(centerPosition);
+      if ("setPosition" in centerDotRef.current) {
+        centerDotRef.current.setPosition(centerPosition);
+      } else {
+        centerDotRef.current.position = centerPosition;
+      }
     } else {
-      centerDotRef.current = new google.maps.Marker({
-        position: centerPosition,
-        map: mapInstanceRef.current,
-        title: 'Search center',
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: '#4285F4', // Google Blue
-          fillOpacity: 1,
-          strokeColor: '#FFFFFF',
-          strokeWeight: 2,
-        },
-      });
+      const hasAdvanced =
+        Boolean(google.maps.marker?.AdvancedMarkerElement) &&
+        typeof google.maps.marker.AdvancedMarkerElement === "function";
+
+      if (hasAdvanced) {
+        const AdvancedMarkerElement =
+          google.maps.marker.AdvancedMarkerElement as unknown as AdvancedMarkerCtor;
+
+        const el = document.createElement("div");
+        el.style.width = "16px";
+        el.style.height = "16px";
+        el.style.borderRadius = "9999px";
+        el.style.background = "#4285F4";
+        el.style.border = "2px solid #FFFFFF";
+        el.style.boxShadow = "0 6px 18px rgba(0,0,0,0.35)";
+
+        centerDotRef.current = new AdvancedMarkerElement({
+          position: centerPosition,
+          map: mapInstanceRef.current,
+          title: "Search center",
+          content: el,
+        });
+      } else {
+        centerDotRef.current = new google.maps.Marker({
+          position: centerPosition,
+          map: mapInstanceRef.current,
+          title: 'Search center',
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: '#4285F4', // Google Blue
+            fillOpacity: 1,
+            strokeColor: '#FFFFFF',
+            strokeWeight: 2,
+          },
+        });
+      }
     }
   }, []);
   const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -189,20 +224,51 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
       // Determine marker style based on sale type
       const isCompanySale = sale.workspace_id && sale.workspace_id !== sale.created_by;
 
-      const marker = new google.maps.Marker({
-        position,
-        map: mapInstanceRef.current,
-        title: sale.title,
-        label: (index + 1).toString(),
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 12,
-          fillColor: isCompanySale ? '#10B981' : '#4F46E5', // Green for company, Blue for personal
-          fillOpacity: 0.9,
-          strokeColor: '#ffffff',
-          strokeWeight: 2,
-        },
-      });
+      const hasAdvanced =
+        Boolean(google.maps.marker?.AdvancedMarkerElement) &&
+        typeof google.maps.marker.AdvancedMarkerElement === "function";
+
+      const marker: AnyMarker = hasAdvanced
+        ? (() => {
+            const AdvancedMarkerElement =
+              google.maps.marker.AdvancedMarkerElement as unknown as AdvancedMarkerCtor;
+
+            const el = document.createElement("div");
+            el.style.width = "28px";
+            el.style.height = "28px";
+            el.style.borderRadius = "9999px";
+            el.style.display = "flex";
+            el.style.alignItems = "center";
+            el.style.justifyContent = "center";
+            el.style.fontSize = "12px";
+            el.style.fontWeight = "700";
+            el.style.color = "#ffffff";
+            el.style.border = "2px solid #ffffff";
+            el.style.background = isCompanySale ? "#10B981" : "#4F46E5";
+            el.style.boxShadow = "0 10px 24px rgba(0,0,0,0.35)";
+            el.textContent = String(index + 1);
+
+            return new AdvancedMarkerElement({
+              position,
+              map: mapInstanceRef.current,
+              title: sale.title,
+              content: el,
+            });
+          })()
+        : new google.maps.Marker({
+            position,
+            map: mapInstanceRef.current,
+            title: sale.title,
+            label: (index + 1).toString(),
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 12,
+              fillColor: isCompanySale ? '#10B981' : '#4F46E5', // Green for company, Blue for personal
+              fillOpacity: 0.9,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            },
+          });
 
       // Store marker reference for cleanup
       salesMarkersRef.current.push(marker);
@@ -241,9 +307,11 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
           `,
       });
 
-      marker.addListener('click', () => {
+      // Works for both Marker and AdvancedMarkerElement
+      google.maps.event.addListener(marker, "click", () => {
         infoWindows.forEach((iw) => iw.close());
-        infoWindow.open(mapInstanceRef.current, marker);
+        // New signature supports advanced markers as anchors.
+        infoWindow.open({ map: mapInstanceRef.current!, anchor: marker });
       });
 
       infoWindows.push(infoWindow);
@@ -266,7 +334,10 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
     mapInstanceRef.current = new google.maps.Map(mapRef.current, {
       center: initialCenter,
       zoom: initialZoom,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      // Use string literal to avoid crashing if MapTypeId is undefined in some loads.
+      mapTypeId: "roadmap",
+      // Required for Advanced Markers (recommended). Create in Google Cloud Console → Maps → Map IDs.
+      mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
       styles: [
         {
           featureType: 'poi',
