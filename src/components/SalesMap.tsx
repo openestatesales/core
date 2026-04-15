@@ -331,20 +331,28 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
 
     const initialZoom = getZoomLevel(distance);
 
+    const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+
     mapInstanceRef.current = new google.maps.Map(mapRef.current, {
       center: initialCenter,
       zoom: initialZoom,
       // Use string literal to avoid crashing if MapTypeId is undefined in some loads.
       mapTypeId: "roadmap",
       // Required for Advanced Markers (recommended). Create in Google Cloud Console → Maps → Map IDs.
-      mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
-      styles: [
-        {
-          featureType: 'poi',
-          elementType: 'labels',
-          stylers: [{ visibility: 'off' }],
-        },
-      ],
+      mapId,
+      // If you set a Map ID, styles must be configured in Cloud Console.
+      // Only apply inline styles when no mapId is present.
+      ...(mapId
+        ? {}
+        : {
+            styles: [
+              {
+                featureType: 'poi',
+                elementType: 'labels',
+                stylers: [{ visibility: 'off' }],
+              },
+            ],
+          }),
     });
 
     if (center) {
