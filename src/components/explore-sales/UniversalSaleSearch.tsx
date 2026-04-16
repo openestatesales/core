@@ -41,7 +41,9 @@ export default function UniversalSaleSearch({
   const allCategories = Array.from(new Set([...commonCategories, ...availableCategories])).sort();
 
   return (
-    <div className={`bg-surface/70 backdrop-blur-md border-b border-zinc-800/90 ${className}`}>
+    <div
+      className={`border-b border-border bg-surface/80 backdrop-blur-md dark:border-zinc-800/90 dark:bg-surface/70 ${className}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-3 space-y-3">
           {marketplaceMode && (
@@ -53,11 +55,11 @@ export default function UniversalSaleSearch({
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
                   placeholder="Search items or tags..."
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-zinc-800 bg-zinc-950/50 text-zinc-100 placeholder:text-zinc-600 focus:ring-2 focus:ring-accent/40 focus:border-accent"
+                  className="w-full rounded-lg border border-border bg-background py-2 pr-3 pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:ring-2 focus:ring-accent/40 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:placeholder:text-zinc-600"
                   aria-label="Search sales and items"
                 />
                 <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
+                  className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -75,10 +77,10 @@ export default function UniversalSaleSearch({
               <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                 <button
                   onClick={() => onCategoryChange('all')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                    selectedCategory === 'all'
-                      ? 'bg-accent text-zinc-950'
-                      : 'bg-zinc-900/70 text-zinc-300 hover:bg-zinc-900 border border-zinc-800'
+                  className={`rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors ${
+                    selectedCategory === "all"
+                      ? "bg-accent text-zinc-950"
+                      : "border border-zinc-200 bg-zinc-100/90 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-300 dark:hover:bg-zinc-900"
                   }`}
                 >
                   All
@@ -88,10 +90,10 @@ export default function UniversalSaleSearch({
                   <button
                     key={category}
                     onClick={() => onCategoryChange(category)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap capitalize transition-colors ${
+                    className={`rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap capitalize transition-colors ${
                       selectedCategory === category
-                        ? 'bg-accent text-zinc-950'
-                        : 'bg-zinc-900/70 text-zinc-300 hover:bg-zinc-900 border border-zinc-800'
+                        ? "bg-accent text-zinc-950"
+                        : "border border-zinc-200 bg-zinc-100/90 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-300 dark:hover:bg-zinc-900"
                     }`}
                   >
                     {category}

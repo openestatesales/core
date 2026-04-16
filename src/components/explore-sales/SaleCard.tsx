@@ -55,13 +55,14 @@ export default function SaleCard({ sale, priority, className }: SaleCardProps) {
     <Link
       href={href}
       className={cn(
-        "group block overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-sm transition",
-        "hover:border-accent/40 hover:bg-zinc-950/70",
+        "group block overflow-hidden rounded-2xl border border-border bg-white/80 shadow-sm transition",
+        "hover:border-accent/35 hover:bg-accent/[0.03]",
+        "dark:border-zinc-800 dark:bg-zinc-950/50 dark:hover:border-accent/40 dark:hover:bg-zinc-950/70",
         className,
       )}
     >
       <div className="grid gap-0 lg:grid-cols-[minmax(0,280px)_1fr]">
-        <div className="relative aspect-[16/10] bg-zinc-900 lg:aspect-auto lg:min-h-[200px]">
+        <div className="relative aspect-[16/10] bg-zinc-200 dark:bg-zinc-900 lg:aspect-auto lg:min-h-[200px]">
           <Image
             src={imageSrc}
             alt={sale.title}
@@ -73,10 +74,10 @@ export default function SaleCard({ sale, priority, className }: SaleCardProps) {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 to-transparent lg:bg-gradient-to-r" />
           <span
             className={cn(
-              "absolute left-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-black/20",
+              "absolute left-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-black/10 dark:ring-black/20",
               company
-                ? "bg-zinc-950/90 text-accent"
-                : "bg-zinc-950/90 text-zinc-100",
+                ? "bg-zinc-900/90 text-accent dark:bg-zinc-950/90"
+                : "bg-white/95 text-zinc-800 dark:bg-zinc-950/90 dark:text-zinc-100",
             )}
           >
             {company ? (
@@ -96,34 +97,34 @@ export default function SaleCard({ sale, priority, className }: SaleCardProps) {
         <div className="flex flex-col justify-between gap-4 p-5 sm:p-6">
           <div className="space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <h3 className="text-lg font-semibold tracking-tight text-zinc-50 sm:text-xl">
+              <h3 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-xl">
                 {sale.title}
               </h3>
             </div>
 
-            <p className="flex items-center gap-2 text-sm text-zinc-400">
-              <MapPin className="size-4 shrink-0 text-accent/90" aria-hidden />
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="size-4 shrink-0 text-accent" aria-hidden />
               <span>
                 {sale.city}, {sale.state}
               </span>
             </p>
 
             {sale.addressVisible === false ? (
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Street address is hidden until the scheduled reveal time.
               </p>
             ) : null}
 
             {dateSummary ? (
-              <p className="flex items-center gap-2 text-sm text-zinc-300">
-                <CalendarRange className="size-4 shrink-0 text-accent/90" aria-hidden />
+              <p className="flex items-center gap-2 text-sm text-foreground/85 dark:text-zinc-300">
+                <CalendarRange className="size-4 shrink-0 text-accent" aria-hidden />
                 <span>{dateSummary}</span>
               </p>
             ) : null}
           </div>
 
-          <div className="flex items-center justify-between gap-3 border-t border-zinc-800/80 pt-4">
-            <span className="text-xs text-zinc-500">Open estate sale listing</span>
+          <div className="flex items-center justify-between gap-3 border-t border-border pt-4 dark:border-zinc-800/80">
+            <span className="text-xs text-muted-foreground">Open estate sale listing</span>
             <span className="inline-flex items-center gap-1 text-sm font-medium text-accent">
               View details
               <ChevronRight className="size-4 transition group-hover:translate-x-0.5" aria-hidden />

@@ -30,7 +30,7 @@ export default function EmptySales({
         <div className={`max-w-4xl mx-auto text-center ${className}`}>
             {/* Illustration */}
             <div className="mb-8">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border border-zinc-800 bg-zinc-950/40 flex items-center justify-center mx-auto mb-6">
+                <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-border bg-white/80 shadow-sm sm:h-28 sm:w-28 dark:border-zinc-800 dark:bg-zinc-950/40">
                     <div className="w-10 h-10 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
                         <span className="text-accent font-bold">+</span>
                     </div>
@@ -38,10 +38,10 @@ export default function EmptySales({
             </div>
 
             {/* Copy */}
-            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-100 mb-3">
+            <h2 className="mb-3 text-2xl font-bold text-foreground sm:text-3xl">
                 {title}
             </h2>
-            <p className="text-base sm:text-lg text-zinc-400 mb-8 max-w-2xl mx-auto">
+            <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground sm:text-lg">
                 {subtitle}
             </p>
 
@@ -76,7 +76,7 @@ export default function EmptySales({
 
                 {/* Optional small footer */}
                 {footer ?? (
-                    <div className="text-xs sm:text-sm text-zinc-500">
+                    <div className="text-xs text-muted-foreground sm:text-sm">
                         Open source. Community built. AGPL-3.0.
                     </div>
                 )}
@@ -97,17 +97,18 @@ function TipCard({
     tone?: 'neutral' | 'accent';
 }) {
     const toneClasses: Record<string, string> = {
-        neutral: 'bg-zinc-900/70 border border-zinc-800 text-zinc-200',
-        accent: 'bg-accent/15 border border-accent/30 text-accent',
+        neutral:
+            "border border-zinc-200 bg-zinc-100/90 text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200",
+        accent: "border border-accent/30 bg-accent/15 text-accent",
     };
 
     return (
-        <div className="rounded-xl p-5 sm:p-6 border border-zinc-800 bg-zinc-950/40">
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 ${toneClasses[tone]} rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4`}>
+        <div className="rounded-xl border border-border bg-white/70 p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40 sm:p-6">
+            <div className={`mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg sm:mb-4 sm:h-12 sm:w-12 ${toneClasses[tone]}`}>
                 {icon}
             </div>
-            <h3 className="font-semibold text-zinc-100 mb-1 sm:mb-2">{title}</h3>
-            <p className="text-xs sm:text-sm text-zinc-400">{body}</p>
+            <h3 className="mb-1 font-semibold text-foreground sm:mb-2">{title}</h3>
+            <p className="text-xs text-muted-foreground sm:text-sm">{body}</p>
         </div>
     );
 }

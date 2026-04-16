@@ -114,14 +114,14 @@ export default function ExploreSales({
         />
 
         {filteredSales.length === 0 ? (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-8">
+          <div className="rounded-2xl border border-border bg-white/70 p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40">
             <EmptySales />
           </div>
         ) : null}
 
         {/* Central map */}
         {viewMode === "map" ? (
-          <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/40">
+          <div className="overflow-hidden rounded-2xl border border-border bg-white/60 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40">
             <div className="h-[520px]">
               <SalesMap
                 sales={filteredSales}

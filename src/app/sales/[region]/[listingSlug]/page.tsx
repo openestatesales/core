@@ -66,33 +66,33 @@ export default async function SaleDetailPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12">
-      <nav className="text-sm text-zinc-500">
-        <Link href="/sales" className="hover:text-zinc-300">
+      <nav className="text-sm text-muted-foreground">
+        <Link href="/sales" className="hover:text-accent">
           Sales
         </Link>
         <span className="mx-2">/</span>
         <Link
           href={`/sales/${sale.region_slug}`}
-          className="hover:text-zinc-300"
+          className="hover:text-accent"
         >
           {sale.region_slug}
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-zinc-400">{sale.listing_slug}</span>
+        <span className="text-foreground/70">{sale.listing_slug}</span>
       </nav>
 
-      <h1 className="mt-6 font-display text-4xl uppercase text-zinc-100">
+      <h1 className="mt-6 font-display text-4xl uppercase text-foreground">
         {sale.title}
       </h1>
-      <p className="mt-2 text-zinc-400">
+      <p className="mt-2 text-muted-foreground">
         {sale.city}, {sale.state}
         {sale.zip ? ` · ${sale.zip}` : null}
       </p>
-      <p className="mt-4 text-zinc-300">
+      <p className="mt-4 text-foreground/90">
         {sale.start_date} — {sale.end_date}
       </p>
       {sale.description ? (
-        <p className="mt-6 whitespace-pre-wrap text-zinc-300">
+        <p className="mt-6 whitespace-pre-wrap text-foreground/85">
           {sale.description}
         </p>
       ) : null}

@@ -56,7 +56,7 @@ export function WaitlistForm() {
 
   if (submitted) {
     return (
-      <p className="text-center text-sm text-zinc-400 md:text-left">
+      <p className="text-center text-sm text-muted-foreground md:text-left">
         You&apos;re on the list. We&apos;ll be in touch at launch.
       </p>
     );
@@ -89,7 +89,8 @@ export function WaitlistForm() {
           aria-invalid={fieldInvalid}
           aria-describedby={error ? "waitlist-email-error" : undefined}
           className={cn(
-            "min-h-12 h-12 flex-1 rounded-xl border-zinc-700 bg-zinc-950/80 px-4 text-base text-zinc-100 placeholder:text-zinc-600 md:text-sm",
+            "min-h-12 h-12 flex-1 rounded-xl border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground md:text-sm",
+            "dark:border-zinc-700 dark:bg-zinc-950/80 dark:text-zinc-100",
             fieldInvalid &&
               "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/40 dark:border-red-500 dark:focus-visible:border-red-500",
           )}

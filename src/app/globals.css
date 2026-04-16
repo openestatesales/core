@@ -8,7 +8,7 @@
   --font-sans: var(--font-sans);
   --font-display: var(--font-anton), Impact, ui-sans-serif, sans-serif;
   --color-accent: #ccff00;
-  --color-surface: #0a0a0a;
+  --color-surface: var(--app-surface);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -65,8 +65,10 @@ body {
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Warm off-white base; subtle black + neon yellow come from typography + accent token */
+  --app-surface: oklch(0.992 0.004 95);
+  --background: oklch(0.994 0.005 95);
+  --foreground: oklch(0.16 0.01 280);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -80,7 +82,7 @@ body {
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
+  --border: oklch(0.9 0.01 95);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
@@ -100,7 +102,8 @@ body {
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --app-surface: #0a0a0a;
+  --background: oklch(0.12 0.01 280);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);

@@ -70,7 +70,7 @@ export default function StickyControlBar({
 
   return (
     <div
-      className={`sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-zinc-800/90 ${className}`}
+      className={`sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md dark:border-zinc-800/90 dark:bg-surface/85 ${className}`}
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Stack on mobile, row on md+ */}
@@ -84,8 +84,8 @@ export default function StickyControlBar({
                 readOnly
                 onClick={onLocationClick}
                 placeholder="City, state, or ZIP"
-                className={`w-full px-3 py-2 pl-8 border border-zinc-800 rounded-lg bg-zinc-950/50 text-sm text-zinc-100 placeholder:text-zinc-600 cursor-pointer hover:bg-zinc-950/70 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent ${
-                  isUpdatingLocation ? 'bg-zinc-950/80 border-accent' : ''
+                className={`w-full cursor-pointer rounded-lg border border-border bg-background px-3 py-2 pl-8 text-sm text-foreground placeholder:text-muted-foreground transition-colors hover:bg-accent/[0.04] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:bg-zinc-950/70 ${
+                  isUpdatingLocation ? "border-accent bg-accent/[0.06] dark:bg-zinc-950/80" : ""
                 }`}
                 aria-label="Location"
                 title="Tap to choose location on map"
@@ -96,7 +96,7 @@ export default function StickyControlBar({
                 </div>
               ) : (
                 <svg
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
+                  className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -127,21 +127,21 @@ export default function StickyControlBar({
             >
               <button
                 onClick={onCycleDateRange}
-                className="px-3 py-2 md:py-1.5 bg-zinc-900/70 hover:bg-zinc-900 text-zinc-200 text-sm font-medium rounded-full whitespace-nowrap transition-colors border border-zinc-800"
+                className="rounded-full border border-zinc-200 bg-zinc-100/90 px-3 py-2 text-sm font-medium whitespace-nowrap text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200 dark:hover:bg-zinc-900 md:py-1.5"
                 type="button"
               >
                 {dateLabel}
               </button>
               <button
                 onClick={onCycleDistance}
-                className="px-3 py-2 md:py-1.5 bg-zinc-900/70 hover:bg-zinc-900 text-zinc-200 text-sm font-medium rounded-full whitespace-nowrap transition-colors border border-zinc-800"
+                className="rounded-full border border-zinc-200 bg-zinc-100/90 px-3 py-2 text-sm font-medium whitespace-nowrap text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200 dark:hover:bg-zinc-900 md:py-1.5"
                 type="button"
               >
                 {distance} mi
               </button>
               <button
                 onClick={onCycleSaleType}
-                className="px-3 py-2 md:py-1.5 bg-zinc-900/70 hover:bg-zinc-900 text-zinc-200 text-sm font-medium rounded-full whitespace-nowrap transition-colors border border-zinc-800"
+                className="rounded-full border border-zinc-200 bg-zinc-100/90 px-3 py-2 text-sm font-medium whitespace-nowrap text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200 dark:hover:bg-zinc-900 md:py-1.5"
                 type="button"
               >
                 {saleTypeLabel}
@@ -151,16 +151,16 @@ export default function StickyControlBar({
 
           {/* View Toggle (full width segmented on mobile) */}
           <div className="order-4 md:order-3 w-full md:w-auto">
-            <div className="flex bg-zinc-900/60 rounded-lg p-1 w-full md:w-auto border border-zinc-800">
+            <div className="flex w-full rounded-lg border border-border bg-zinc-100/80 p-1 dark:border-zinc-800 dark:bg-zinc-900/60 md:w-auto">
               <button
                 onClick={() => {
                   onSetMarketplaceMode(false);
                   onSetViewMode('list');
                 }}
-                className={`flex-1 md:flex-none px-3 py-2 md:py-1.5 rounded-md font-medium transition-all duration-200 text-sm ${
-                  viewMode === 'list' && !marketplaceMode
-                    ? 'bg-accent text-zinc-950 shadow-sm'
-                    : 'text-zinc-300 hover:text-zinc-100'
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 md:flex-none md:py-1.5 ${
+                  viewMode === "list" && !marketplaceMode
+                    ? "bg-accent text-zinc-950 shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
                 }`}
                 type="button"
                 aria-pressed={viewMode === 'list' && !marketplaceMode}
@@ -172,10 +172,10 @@ export default function StickyControlBar({
                   onSetMarketplaceMode(false);
                   onSetViewMode('map');
                 }}
-                className={`flex-1 md:flex-none px-3 py-2 md:py-1.5 rounded-md font-medium transition-all duration-200 text-sm ${
-                  viewMode === 'map' && !marketplaceMode
-                    ? 'bg-accent text-zinc-950 shadow-sm'
-                    : 'text-zinc-300 hover:text-zinc-100'
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 md:flex-none md:py-1.5 ${
+                  viewMode === "map" && !marketplaceMode
+                    ? "bg-accent text-zinc-950 shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
                 }`}
                 type="button"
                 aria-pressed={viewMode === 'map' && !marketplaceMode}
@@ -187,10 +187,10 @@ export default function StickyControlBar({
                   onSetMarketplaceMode(true);
                   onSetViewMode('list');
                 }}
-                className={`flex-1 md:flex-none px-3 py-2 md:py-1.5 rounded-md font-medium transition-all duration-200 text-sm ${
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 md:flex-none md:py-1.5 ${
                   marketplaceMode
-                    ? 'bg-accent text-zinc-950 shadow-sm'
-                    : 'text-zinc-300 hover:text-zinc-100'
+                    ? "bg-accent text-zinc-950 shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
                 }`}
                 type="button"
                 aria-pressed={marketplaceMode}
@@ -202,7 +202,7 @@ export default function StickyControlBar({
 
           {/* Results Count (right on desktop, under controls on mobile) */}
           <div
-            className="order-2 md:order-4 text-sm text-zinc-400 font-medium md:ml-auto"
+            className="order-2 text-sm font-medium text-muted-foreground md:order-4 md:ml-auto"
             aria-live="polite"
           >
             {marketplaceMode ? `${itemsCount} items` : `${salesCount} sales`}

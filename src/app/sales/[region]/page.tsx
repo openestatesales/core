@@ -24,10 +24,10 @@ export default async function SalesByRegionPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12">
-      <p className="text-xs uppercase tracking-wider text-zinc-500">
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">
         Region · {region}
       </p>
-      <h1 className="mt-2 font-display text-3xl uppercase text-zinc-100">
+      <h1 className="mt-2 font-display text-3xl uppercase text-foreground">
         Estate sales
       </h1>
       <ul className="mt-8 space-y-3">
@@ -39,14 +39,14 @@ export default async function SalesByRegionPage({ params }: Props) {
             >
               {s.title}
             </Link>
-            <span className="ml-2 text-sm text-zinc-500">
+            <span className="ml-2 text-sm text-muted-foreground">
               {s.start_date} — {s.end_date}
             </span>
           </li>
         ))}
       </ul>
       {sales.length === 0 ? (
-        <p className="mt-6 text-zinc-500">
+        <p className="mt-6 text-muted-foreground">
           No published sales in this area yet.
         </p>
       ) : null}

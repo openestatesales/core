@@ -32,25 +32,27 @@ const getDateRangeLabel = (v?: DateRange) => {
 export default function ActiveFilters({ filters, salesCount, className = '' }: Props) {
   return (
     <div
-      className={`mb-4 sm:mb-6 p-3 sm:p-4 mx-auto bg-zinc-950/40 border border-zinc-800 rounded-xl ${className}`}
+      className={`mx-auto mb-4 rounded-xl border border-border bg-white/70 p-3 shadow-sm sm:mb-6 sm:p-4 dark:border-zinc-800 dark:bg-zinc-950/40 ${className}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-zinc-200">
-          <span className="font-medium text-zinc-300">Active filters</span>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/90 sm:gap-4 sm:text-sm dark:text-zinc-200">
+          <span className="font-medium text-muted-foreground dark:text-zinc-300">
+            Active filters
+          </span>
 
           {filters.dateRange && (
-            <span className="px-2 py-1 bg-zinc-900/70 border border-zinc-800 rounded-full text-xs text-zinc-200">
+            <span className="rounded-full border border-zinc-200 bg-zinc-100/90 px-2 py-1 text-xs text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200">
               {getDateRangeLabel(filters.dateRange)}
             </span>
           )}
 
           {filters.saleType !== 'all' && filters.saleType && (
-            <span className="px-2 py-1 bg-zinc-900/70 border border-zinc-800 rounded-full text-xs text-zinc-200">
+            <span className="rounded-full border border-zinc-200 bg-zinc-100/90 px-2 py-1 text-xs text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200">
               {filters.saleType === 'company' ? 'Company Sales' : 'Personal Sales'}
             </span>
           )}
 
-          <span className="px-2 py-1 bg-zinc-900/70 border border-zinc-800 rounded-full text-xs text-zinc-200">
+          <span className="rounded-full border border-zinc-200 bg-zinc-100/90 px-2 py-1 text-xs text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200">
             Within {filters.distance} miles
           </span>
         </div>
