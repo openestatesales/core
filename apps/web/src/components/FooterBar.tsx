@@ -9,6 +9,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const REPO = "https://github.com/msabree/open-estate-sales";
+const DEV_PORTAL_PROD = "https://developer.openestatesales.com";
+
+function developerPortalUrl() {
+  if (process.env.NODE_ENV === "development") return "http://localhost:3001";
+  return DEV_PORTAL_PROD;
+}
 
 type FooterProps = {
   className?: string;
@@ -132,7 +138,9 @@ export function Footer({ className }: FooterProps) {
               <FooterLink href="/privacy">Privacy</FooterLink>
             </Column>
             <Column title="Developers">
-              <FooterLink href="/developers">Developer hub</FooterLink>
+              <FooterLink href={developerPortalUrl()} external>
+                Developer Hub
+              </FooterLink>
               <FooterLink href={REPO} external>
                 GitHub
               </FooterLink>
