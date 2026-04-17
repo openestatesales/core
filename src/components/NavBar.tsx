@@ -4,7 +4,7 @@ import { SiteLogo } from "@/components/icons/Logo";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/login", label: "Operators" },
+  { href: "/operator", label: "Operators" },
   { href: "/sales", label: "Explore" },
 ] as const;
 

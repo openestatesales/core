@@ -72,7 +72,7 @@ export default function Home() {
               </Link>
 
               <Link
-                href="/login"
+                href="/operator"
                 className="group flex flex-col justify-between rounded-2xl border border-accent/35 bg-accent/[0.08] p-6 shadow-sm transition hover:border-accent/55 hover:bg-accent/[0.12] dark:border-accent/25 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/80"
               >
                 <div>

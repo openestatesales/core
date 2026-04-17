@@ -147,3 +147,9 @@ body {
     @apply font-sans;
   }
 }
+
+/* Google Maps Places API (New) — PlaceAutocompleteElement (gmp-place-autocomplete) */
+.sale-location-place-autocomplete gmp-place-autocomplete {
+  display: block;
+  width: 100%;
+}
