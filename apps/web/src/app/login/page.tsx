@@ -89,14 +89,6 @@ function LoginForm() {
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
       <div className="absolute inset-0">
-        <Image
-          src="https://images.unsplash.com/photo-1769614923752-b009e0ee7afd?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt=""
-          className="object-cover"
-          fill
-          sizes="100vw"
-          priority
-        />
         <div
           className="absolute inset-0 bg-gradient-to-br from-black/55 via-zinc-900/40 to-accent/15"
           aria-hidden

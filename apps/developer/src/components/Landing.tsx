@@ -117,17 +117,6 @@ export function Landing({
                   </a>
                 </div>
               </div>
-
-              <aside className="heroCard" id="sdks">
-                <h2 className="heroCardTitle">Quick start</h2>
-                <p className="heroCardBody">
-                  SDK base URL: <code>{sdkBaseUrl}</code>
-                </p>
-                <p className="heroCardBody" style={{ marginTop: 8 }}>
-                  Today this portal is a landing page; next up: docs, an API
-                  reference, and real examples powered by <code>@oes/sdk</code>.
-                </p>
-              </aside>
             </div>
           </div>
         </section>
