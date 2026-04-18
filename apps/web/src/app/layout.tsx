@@ -57,8 +57,8 @@ export default function RootLayout({
               aria-hidden
             />
             <div className="relative z-10 flex min-h-screen flex-col">
-              <NavBar />
               <DevelopmentStageBanner />
+              <NavBar />
               <div className="flex flex-1 flex-col">{children}</div>
               <Footer />
             </div>

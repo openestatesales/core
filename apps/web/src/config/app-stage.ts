@@ -8,7 +8,7 @@ export const APP_STAGES = [
 
 export type AppStage = (typeof APP_STAGES)[number];
 
-const DEFAULT_STAGE: AppStage = "building";
+const DEFAULT_STAGE: AppStage = "experimental";
 
 /**
  * Set `NEXT_PUBLIC_APP_STAGE` to one of: building | experimental | alpha | beta | live
