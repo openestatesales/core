@@ -3,7 +3,7 @@ import { Anton, Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { DevelopmentStageBanner } from "@/components/DevelopmentStageBanner";
 import { Footer } from "@/components/FooterBar";
-import { NavBar } from "@/components/NavBar";
+import { NavBarGate } from "@/components/NavBarGate";
 import { PersonaProvider } from "@/components/persona/PersonaProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,7 @@ export default function RootLayout({
             />
             <div className="relative z-10 flex min-h-screen flex-col">
               <DevelopmentStageBanner />
-              <NavBar />
+              <NavBarGate />
               <div className="flex flex-1 flex-col">{children}</div>
               <Footer />
             </div>

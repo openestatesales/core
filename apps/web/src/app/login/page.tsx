@@ -7,13 +7,36 @@ import { loginSchema, type LoginFormData } from "@/form-schemas/login";
 import type { Persona } from "@/lib/persona";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
+import { CalendarRange, MapPin, Sparkles, Store } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useActionState, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
 const initialAuthState: AuthResult = { success: true };
+
+const OPERATOR_BENEFITS = [
+  {
+    Icon: Sparkles,
+    title: "Free forever",
+    body: "No subscription or per-listing fees—list with us while you grow.",
+  },
+  {
+    Icon: MapPin,
+    title: "Map-ready discovery",
+    body: "Fuzzy pins, clear dates, and search-friendly listings so locals find you.",
+  },
+  {
+    Icon: CalendarRange,
+    title: "Photos & schedules",
+    body: "Show what’s inside and when you’re open—everything shoppers need to plan a visit.",
+  },
+  {
+    Icon: Store,
+    title: "Operator workflows",
+    body: "Draft, publish, and manage sales in one place—built for small teams.",
+  },
+] as const;
 
 function AuthErrorMessage({ state, isLogin }: { state: AuthResult; isLogin: boolean }) {
   if (state.success !== false) return null;
@@ -47,6 +70,59 @@ function AuthErrorMessage({ state, isLogin }: { state: AuthResult; isLogin: bool
   if (code === "auth/too-many-requests")
     return <p>Too many attempts. Please try again later.</p>;
   return <p>{fallback}</p>;
+}
+
+const SPLIT_PANE_PADDING =
+  "px-6 py-12 sm:px-10 lg:px-12 lg:py-16 xl:px-14";
+const SPLIT_INNER = "mx-auto w-full max-w-lg";
+
+function OperatorBenefitsAside({ className }: { className?: string }) {
+  return (
+    <aside
+      className={cn(
+        "relative flex min-h-0 min-w-0 flex-col justify-center overflow-hidden border-t border-white/10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-accent/25 lg:border-t-0",
+        className,
+      )}
+      aria-label="Why operators use Open Estate Sales"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_480px_at_18%_12%,oklch(0.45_0.12_238/0.4),transparent_55%),radial-gradient(700px_420px_at_92%_88%,oklch(0.35_0.1_258/0.28),transparent_50%)]"
+        aria-hidden
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/35" aria-hidden />
+      <div className={cn("relative z-10", SPLIT_INNER)}>
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-400/40 bg-sky-500/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-sky-100 shadow-[0_0_24px_oklch(0.55_0.14_238/0.28)]">
+          <span
+            className="size-2 shrink-0 rounded-full bg-sky-400 shadow-[0_0_0_3px_oklch(0.62_0.14_238/0.4)]"
+            aria-hidden
+          />
+          Free forever — for operators
+        </div>
+        <h2 className="text-balance text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+          List estate sales without the platform tax.
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-white/75">
+          Shoppers browse free; operators list free. Same account—pick shopper or
+          operator when you sign up.
+        </p>
+
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-3.5">
+          {OPERATOR_BENEFITS.map(({ Icon, title, body }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-white/12 bg-white/[0.06] p-4 backdrop-blur-sm"
+            >
+              <div className="flex size-9 items-center justify-center rounded-xl border border-sky-400/30 bg-sky-500/15 text-sky-200">
+                <Icon className="size-4" strokeWidth={2} aria-hidden />
+              </div>
+              <h3 className="mt-3 text-sm font-semibold text-white">{title}</h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-white/72">{body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </aside>
+  );
 }
 
 function LoginForm() {
@@ -86,61 +162,70 @@ function LoginForm() {
     });
   });
 
-  return (
-    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
-      <div className="absolute inset-0">
-        <div
-          className="absolute inset-0 bg-gradient-to-br from-black/55 via-zinc-900/40 to-accent/15"
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/25"
-          aria-hidden
-        />
-      </div>
+  const inputClass =
+    "w-full rounded-lg border border-input bg-background px-4 py-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
 
-      <div className="relative z-10 flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="mb-8 text-center">
-            <SiteLogo className="mx-auto block [&_span:last-child]:text-white" />
-            <p className="mt-3 text-sm text-white/85 drop-shadow">
-              Sign in to browse or list. New accounts pick shopper or operator on sign up.
+  return (
+    <div
+      className={cn(
+        "grid min-h-0 w-full min-w-0 grid-cols-1",
+        "min-h-[calc(100dvh-4.75rem)] lg:min-h-[calc(100dvh-5rem)]",
+        "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-1 lg:items-stretch",
+        "lg:divide-x lg:divide-border/90 dark:lg:divide-border/60",
+      )}
+    >
+      {/* Form column: first on mobile, right half on lg */}
+      <div
+        className={cn(
+          "order-1 flex min-h-0 min-w-0 flex-col justify-center bg-background",
+          SPLIT_PANE_PADDING,
+          "lg:order-2",
+        )}
+      >
+        <div className={SPLIT_INNER}>
+          <div className="mb-8 text-left">
+            <SiteLogo className="inline-flex" />
+            <p className="mt-3 text-sm text-muted-foreground">
+              Sign in to browse or list. New accounts pick shopper or operator on
+              sign up.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-xl dark:bg-black/25">
+          <div className="w-full rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
             {showForgotPassword ? (
               <ForgotPassword onDone={() => setShowForgotPassword(false)} />
             ) : (
               <>
-                <div className="mb-6 flex rounded-lg bg-black/20 p-1 dark:bg-black/30">
+                <div className="mb-6 flex rounded-lg bg-muted/80 p-1 dark:bg-muted/50">
                   <button
                     type="button"
                     onClick={() => setIsLogin(true)}
-                    className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                    className={cn(
+                      "flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200",
                       isLogin
-                        ? "bg-white/95 text-zinc-900 shadow-sm"
-                        : "text-white/85 hover:text-white"
-                    }`}
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
                   >
                     Sign in
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsLogin(false)}
-                    className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                    className={cn(
+                      "flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200",
                       !isLogin
-                        ? "bg-white/95 text-zinc-900 shadow-sm"
-                        : "text-white/85 hover:text-white"
-                    }`}
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
                   >
                     Sign up
                   </button>
                 </div>
 
                 {checkEmail ? (
-                  <div className="mb-6 rounded-lg border border-accent/35 bg-accent/15 p-4 backdrop-blur-sm">
-                    <p className="text-sm text-white">
+                  <div className="mb-6 rounded-lg border border-primary/25 bg-primary/10 p-4">
+                    <p className="text-sm text-foreground">
                       <strong>Check your email</strong> — we sent a confirmation
                       link. You can sign in after you confirm.
                     </p>
@@ -148,14 +233,14 @@ function LoginForm() {
                 ) : null}
 
                 {queryError === "auth" ? (
-                  <div className="mb-6 rounded-lg border border-red-400/35 bg-red-500/15 p-4 text-sm text-red-100">
+                  <div className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
                     That sign-in link was invalid or expired. Try again.
                   </div>
                 ) : null}
 
                 {isLogin ? (
-                  <div className="mb-6 rounded-lg border border-accent/25 bg-accent/10 p-4 backdrop-blur-sm">
-                    <p className="text-sm text-white/95">
+                  <div className="mb-6 rounded-lg border border-border bg-muted/50 p-4">
+                    <p className="text-sm text-foreground">
                       <strong>New here?</strong> Confirm your email after sign up
                       before signing in.
                     </p>
@@ -164,14 +249,14 @@ function LoginForm() {
 
                 <form className="space-y-6" onSubmit={onSubmit} noValidate>
                   {authState.success === false ? (
-                    <div className="rounded-lg border border-red-400/35 bg-red-500/10 p-3 text-sm text-red-100">
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                       <AuthErrorMessage state={authState} isLogin={isLogin} />
                     </div>
                   ) : null}
 
                   {!isLogin ? (
-                    <div className="rounded-xl border border-white/20 bg-black/20 p-4">
-                      <p className="mb-3 text-center text-sm font-medium text-white/95">
+                    <div className="rounded-xl border border-border bg-muted/40 p-4">
+                      <p className="mb-3 text-center text-sm font-medium text-foreground">
                         How are you using Open Estate Sales?
                       </p>
                       <div className="grid gap-2 sm:grid-cols-2">
@@ -181,12 +266,12 @@ function LoginForm() {
                           className={cn(
                             "rounded-lg border px-3 py-3 text-left text-sm transition",
                             signupPersona === "shopper"
-                              ? "border-accent bg-white/15 text-white shadow-sm"
-                              : "border-white/15 text-white/80 hover:border-white/35",
+                              ? "border-primary bg-primary/10 text-foreground shadow-sm"
+                              : "border-border text-muted-foreground hover:border-input",
                           )}
                         >
                           <span className="font-semibold">Shopper</span>
-                          <span className="mt-1 block text-xs text-white/70">
+                          <span className="mt-1 block text-xs text-muted-foreground">
                             Browse sales, save favorites, get alerts.
                           </span>
                         </button>
@@ -196,12 +281,12 @@ function LoginForm() {
                           className={cn(
                             "rounded-lg border px-3 py-3 text-left text-sm transition",
                             signupPersona === "operator"
-                              ? "border-accent bg-white/15 text-white shadow-sm"
-                              : "border-white/15 text-white/80 hover:border-white/35",
+                              ? "border-primary bg-primary/10 text-foreground shadow-sm"
+                              : "border-border text-muted-foreground hover:border-input",
                           )}
                         >
                           <span className="font-semibold">Operator</span>
-                          <span className="mt-1 block text-xs text-white/70">
+                          <span className="mt-1 block text-xs text-muted-foreground">
                             List sales and manage your listings.
                           </span>
                         </button>
@@ -212,7 +297,7 @@ function LoginForm() {
                   <div>
                     <label
                       htmlFor="email"
-                      className="mb-2 block text-sm font-medium text-white/95"
+                      className="mb-2 block text-sm font-medium text-foreground"
                     >
                       Email
                     </label>
@@ -221,12 +306,12 @@ function LoginForm() {
                         id="email"
                         type="text"
                         autoComplete="email"
-                        className="w-full rounded-lg border border-white/30 bg-white/15 px-4 py-3 pr-10 text-sm text-white placeholder:text-white/45 backdrop-blur-sm focus:border-accent focus:ring-2 focus:ring-accent/40"
+                        className={cn(inputClass, "pr-10")}
                         placeholder="you@example.com"
                         {...register("email")}
                       />
                       {errors.email ? (
-                        <p className="mt-2 text-sm text-red-200">
+                        <p className="mt-2 text-sm text-destructive">
                           {errors.email.message}
                         </p>
                       ) : null}
@@ -236,7 +321,7 @@ function LoginForm() {
                   <div>
                     <label
                       htmlFor="password"
-                      className="mb-2 block text-sm font-medium text-white/95"
+                      className="mb-2 block text-sm font-medium text-foreground"
                     >
                       Password
                     </label>
@@ -247,19 +332,19 @@ function LoginForm() {
                         autoComplete={
                           isLogin ? "current-password" : "new-password"
                         }
-                        className="w-full rounded-lg border border-white/30 bg-white/15 px-4 py-3 pr-12 text-sm text-white placeholder:text-white/45 backdrop-blur-sm focus:border-accent focus:ring-2 focus:ring-accent/40"
+                        className={cn(inputClass, "pr-12")}
                         placeholder="••••••••"
                         {...register("password")}
                       />
                       {errors.password ? (
-                        <p className="mt-2 text-sm text-red-200">
+                        <p className="mt-2 text-sm text-destructive">
                           {errors.password.message}
                         </p>
                       ) : null}
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-white/70 hover:text-white"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
                         aria-label={
                           showPassword ? "Hide password" : "Show password"
                         }
@@ -278,7 +363,7 @@ function LoginForm() {
                       <button
                         type="button"
                         onClick={() => setShowForgotPassword(true)}
-                        className="text-sm font-medium text-accent hover:underline"
+                        className="text-sm font-medium text-primary hover:underline"
                       >
                         Forgot password?
                       </button>
@@ -292,23 +377,20 @@ function LoginForm() {
                         type="checkbox"
                         checked={agreedToTerms}
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
-                        className="mt-1 h-4 w-4 rounded border-white/40 bg-white/15 text-accent focus:ring-accent/50"
+                        className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
                       />
-                      <label
-                        htmlFor="terms"
-                        className="text-sm text-white/90"
-                      >
+                      <label htmlFor="terms" className="text-sm text-muted-foreground">
                         I agree to the{" "}
                         <Link
                           href="/terms"
-                          className="font-medium text-accent hover:underline"
+                          className="font-medium text-primary hover:underline"
                         >
                           Terms &amp; conditions
                         </Link>{" "}
                         and{" "}
                         <Link
                           href="/privacy"
-                          className="font-medium text-accent hover:underline"
+                          className="font-medium text-primary hover:underline"
                         >
                           Privacy policy
                         </Link>
@@ -319,10 +401,8 @@ function LoginForm() {
 
                   <button
                     type="submit"
-                    disabled={
-                      pending || (!isLogin && !agreedToTerms)
-                    }
-                    className="w-full rounded-lg bg-accent py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={pending || (!isLogin && !agreedToTerms)}
+                    className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {pending
                       ? isLogin
@@ -338,15 +418,15 @@ function LoginForm() {
           </div>
 
           {!showForgotPassword ? (
-            <div className="mt-8 text-center">
-              <p className="text-sm text-white/90 drop-shadow">
+            <div className="mt-8 text-left">
+              <p className="text-sm text-muted-foreground">
                 {isLogin ? "No account yet? " : "Already registered? "}
                 <button
                   type="button"
                   onClick={() => {
                     setIsLogin(!isLogin);
                   }}
-                  className="font-medium text-accent hover:underline"
+                  className="font-medium text-primary hover:underline"
                 >
                   {isLogin ? "Sign up" : "Sign in"}
                 </button>
@@ -355,6 +435,10 @@ function LoginForm() {
           ) : null}
         </div>
       </div>
+
+      <OperatorBenefitsAside
+        className={cn("order-2 lg:order-1", SPLIT_PANE_PADDING)}
+      />
     </div>
   );
 }
@@ -407,7 +491,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="flex min-h-[calc(100dvh-4.75rem)] items-center justify-center">
           <p className="text-muted-foreground">Loading…</p>
         </div>
       }

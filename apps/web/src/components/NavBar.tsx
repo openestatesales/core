@@ -13,9 +13,7 @@ type NavBarProps = {
 };
 
 export function NavBar({ className }: NavBarProps) {
-  const { user, persona, loading } = usePersona();
-  const showBrowseNav =
-    !loading && (!user || persona === "shopper");
+  const { user, loading } = usePersona();
 
   return (
     <header
@@ -29,17 +27,6 @@ export function NavBar({ className }: NavBarProps) {
           <SiteLogo size="compact" />
         </div>
         <div className="flex flex-1 flex-wrap items-center justify-end gap-2 sm:gap-3 md:flex-nowrap md:justify-end md:gap-4">
-          {showBrowseNav ? (
-            <nav
-              className="order-last flex w-full items-center gap-3 text-sm font-medium uppercase tracking-wider text-muted-foreground md:order-none md:ml-4 md:w-auto md:gap-5"
-              aria-label="Main"
-            >
-              <Link href="/sales" className="transition-colors hover:text-accent">
-                Browse
-              </Link>
-            </nav>
-          ) : null}
-
           <div className="flex items-center gap-2 sm:gap-3">
             {!loading && user ? <OperatorAccountMenu /> : null}
             {!loading && !user ? (

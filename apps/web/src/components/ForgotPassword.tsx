@@ -67,13 +67,13 @@ export default function ForgotPassword({ onDone }: Props) {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-white/25 bg-white/15 px-4 py-3 text-sm text-white placeholder:text-white/50 focus:border-accent focus:ring-2 focus:ring-accent/40 dark:border-white/20"
+          className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           placeholder="you@example.com"
           required
         />
       </div>
       {error ? (
-        <p className="text-sm text-red-200" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       ) : null}
@@ -81,14 +81,14 @@ export default function ForgotPassword({ onDone }: Props) {
         <button
           type="button"
           onClick={onDone}
-          className="text-sm font-medium text-white/80 hover:text-white"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-60"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
         >
           {pending ? "Sending…" : "Send link"}
         </button>
