@@ -1,15 +1,23 @@
+/*
+  Dark developer portal — aligned with apps/web (hue 238 sky blue, oklch tokens).
+  Mirrors web .dark in globals.css; keeps plain CSS (no Tailwind theme here).
+*/
 :root {
   color-scheme: dark;
-  --bg: #070a0d;
-  --panel: rgba(255, 255, 255, 0.06);
-  --panel-2: rgba(255, 255, 255, 0.08);
-  --text: rgba(255, 255, 255, 0.92);
-  --muted: rgba(255, 255, 255, 0.68);
-  --border: rgba(255, 255, 255, 0.14);
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
-  --accent: #caff34;
-  --accent-2: #8cff2f;
-  --link: rgba(255, 255, 255, 0.88);
+  /* Core surfaces (match web --background / --card, slightly tuned for gradients) */
+  --bg: oklch(0.13 0.03 238);
+  --panel: oklch(0.18 0.028 238 / 0.92);
+  --panel-2: oklch(0.22 0.032 238 / 0.55);
+  --text: oklch(0.96 0.012 238);
+  --muted: oklch(0.72 0.04 238);
+  --border: oklch(1 0 0 / 14%);
+  --shadow: 0 24px 70px oklch(0.05 0.04 238 / 0.65);
+  /* Brand = web dark --brand */
+  --accent: oklch(0.76 0.11 238);
+  --accent-deep: oklch(0.58 0.15 238);
+  /* Primary CTA text on brand fill (web --brand-foreground) */
+  --on-accent: oklch(0.12 0.04 250);
+  --link: oklch(0.88 0.04 238);
   --max: 1120px;
 }
 
@@ -25,14 +33,19 @@ body {
   line-height: 1.4;
   color: var(--text);
   background: radial-gradient(
-      1200px 600px at 25% 15%,
-      rgba(202, 255, 52, 0.18),
-      transparent 60%
+      1200px 600px at 22% 12%,
+      oklch(0.48 0.14 238 / 0.28),
+      transparent 58%
     ),
     radial-gradient(
-      900px 500px at 80% 40%,
-      rgba(140, 255, 47, 0.12),
-      transparent 55%
+      900px 520px at 78% 38%,
+      oklch(0.42 0.12 238 / 0.18),
+      transparent 52%
+    ),
+    radial-gradient(
+      700px 400px at 50% 95%,
+      oklch(0.35 0.1 258 / 0.12),
+      transparent 50%
     ),
     var(--bg);
 }
@@ -60,11 +73,11 @@ pre {
 .topbar {
   background: linear-gradient(
     90deg,
-    rgba(202, 255, 52, 0.12),
-    rgba(202, 255, 52, 0.06),
-    rgba(202, 255, 52, 0.12)
+    oklch(0.55 0.12 238 / 0.14),
+    oklch(0.5 0.1 238 / 0.06),
+    oklch(0.55 0.12 238 / 0.14)
   );
-  border-bottom: 1px solid rgba(202, 255, 52, 0.22);
+  border-bottom: 1px solid oklch(0.62 0.11 238 / 0.28);
 }
 
 .topbarRow {
@@ -92,7 +105,7 @@ pre {
   height: 8px;
   border-radius: 999px;
   background: var(--accent);
-  box-shadow: 0 0 0 3px rgba(202, 255, 52, 0.12);
+  box-shadow: 0 0 0 3px oklch(0.65 0.12 238 / 0.25);
 }
 
 .header {
@@ -100,8 +113,8 @@ pre {
   top: 0;
   z-index: 20;
   backdrop-filter: blur(12px);
-  background: rgba(7, 10, 13, 0.72);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: oklch(0.14 0.03 238 / 0.78);
+  border-bottom: 1px solid oklch(1 0 0 / 10%);
 }
 
 .headerRow {
@@ -126,8 +139,12 @@ pre {
   width: 28px;
   height: 28px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent), rgba(202, 255, 52, 0.25));
-  box-shadow: 0 10px 30px rgba(202, 255, 52, 0.18);
+  background: linear-gradient(
+    145deg,
+    var(--accent) 0%,
+    var(--accent-deep) 100%
+  );
+  box-shadow: 0 10px 32px oklch(0.55 0.14 238 / 0.35);
 }
 
 .nav {
@@ -144,7 +161,7 @@ pre {
 }
 
 .nav a:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--accent);
 }
 
 .hero {
@@ -167,7 +184,7 @@ pre {
 
 .accent {
   color: var(--accent);
-  text-shadow: 0 0 30px rgba(202, 255, 52, 0.12);
+  text-shadow: 0 0 36px oklch(0.6 0.14 238 / 0.35);
 }
 
 .lede {
@@ -226,9 +243,10 @@ pre {
 }
 
 .btnPrimary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: rgba(0, 0, 0, 0.92);
-  border-color: rgba(202, 255, 52, 0.35);
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color: var(--on-accent);
+  border-color: oklch(0.62 0.12 238 / 0.42);
+  box-shadow: 0 8px 28px oklch(0.45 0.14 238 / 0.28);
 }
 
 .btn:hover {
@@ -257,8 +275,8 @@ pre {
 }
 
 .tile:hover {
-  border-color: rgba(202, 255, 52, 0.34);
-  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
+  border-color: oklch(0.62 0.12 238 / 0.45);
+  box-shadow: 0 18px 55px oklch(0.05 0.04 238 / 0.5);
 }
 
 .tileTitle {
