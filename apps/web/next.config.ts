@@ -39,9 +39,25 @@ if (supabaseUrl) {
   }
 }
 
+/** Next 16+ blocks optimizing images whose host resolves to a private IP (SSRF guard). Local Supabase Storage URLs use 127.0.0.1 — allow only in that case. */
+function supabaseStorageUsesLoopback(urlStr: string | undefined): boolean {
+  if (!urlStr) return false;
+  try {
+    const { hostname } = new URL(urlStr);
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1"
+    );
+  } catch {
+    return false;
+  }
+}
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns,
+    dangerouslyAllowLocalIP: supabaseStorageUsesLoopback(supabaseUrl),
   },
 };
 
