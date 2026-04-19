@@ -1,114 +1,168 @@
-'use client';
+"use client";
 
-import { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 type EmptySalesProps = {
-    /** Page context, tweaks copy/CTAs */
-    /** Big headline */
-    title?: string;
-    /** Subheadline */
-    subtitle?: string;
-    /** Show the three small “what to do next” cards */
-    showTips?: boolean;
-    /** Optional extra actions (e.g., “Turn on notifications”) */
-    extraActions?: ReactNode;
-    /** Optional footer below CTAs */
-    footer?: ReactNode;
-    /** Optional className overrides */
-    className?: string;
+  title?: string;
+  subtitle?: string;
+  showTips?: boolean;
+  extraActions?: ReactNode;
+  footer?: ReactNode;
+  className?: string;
 };
 
 export default function EmptySales({
-    title = "No sales yet",
-    subtitle = "We’re building a free, open directory of estate sales. Check back soon — or help seed the map by inviting local operators.",
-    showTips = true,
-    extraActions,
-    footer,
-    className = '',
+  title = "We’re just getting started",
+  subtitle =
+    "We’re building an open directory of estate sales in your area. Check back as new sales go live—or invite a local operator to list.",
+  showTips = true,
+  extraActions,
+  footer,
+  className = "",
 }: EmptySalesProps) {
-    return (
-        <div className={`max-w-4xl mx-auto text-center ${className}`}>
-            {/* Illustration */}
-            <div className="mb-8">
-                <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-border bg-white/80 shadow-sm sm:h-28 sm:w-28 dark:border-zinc-800 dark:bg-zinc-950/40">
-                    <div className="w-10 h-10 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
-                        <span className="text-accent font-bold">+</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Copy */}
-            <h2 className="mb-3 text-2xl font-bold text-foreground sm:text-3xl">
-                {title}
-            </h2>
-            <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground sm:text-lg">
-                {subtitle}
-            </p>
-
-            {/* Next steps tips (optional) */}
-            {showTips && (
-                <div className="grid sm:grid-cols-3 gap-4 sm:gap-6 mb-10">
-                    <TipCard
-                        icon={<span className="text-accent font-bold">+</span>}
-                        title="Invite operators"
-                        body="Know a local sale company? Send them the link to post."
-                        tone={'accent'}
-                    />
-                    <TipCard
-                        icon={<span className="text-accent font-bold">◎</span>}
-                        title="Get Notified"
-                        body="Turn on alerts for your city and distance."
-                        tone="neutral"
-                    />
-                    <TipCard
-                        icon={<span className="text-accent font-bold">↗</span>}
-                        title="Spread the Word"
-                        body="Star the repo and share the project."
-                        tone="neutral"
-                    />
-                </div>
-            )}
-
-            {/* Primary + extra actions */}
-            <div className="space-y-4">
-                {/* Optional secondary/extra actions */}
-                {extraActions}
-
-                {/* Optional small footer */}
-                {footer ?? (
-                    <div className="text-xs text-muted-foreground sm:text-sm">
-                        Open source. Community built. AGPL-3.0.
-                    </div>
-                )}
-            </div>
+  return (
+    <div className={`mx-auto max-w-4xl text-center ${className}`}>
+      <div className="mb-8">
+        <div className="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-accent/25 via-accent/10 to-muted sm:h-32 sm:w-32">
+          <svg
+            className="h-12 w-12 text-accent sm:h-16 sm:w-16"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
+          </svg>
         </div>
-    );
+      </div>
+
+      <h2 className="mb-3 text-2xl font-bold text-foreground sm:text-3xl">
+        {title}
+      </h2>
+      <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground sm:text-lg">
+        {subtitle}
+      </p>
+
+      {showTips ? (
+        <div className="mb-10 grid gap-4 sm:grid-cols-3 sm:gap-6">
+          <TipCard
+            icon={
+              <svg
+                className="h-5 w-5 text-indigo-600 dark:text-indigo-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+            }
+            title="Follow sellers"
+            body="Favorite companies and operators so you see their sales early."
+            tone="indigo"
+          />
+          <TipCard
+            icon={
+              <svg
+                className="h-5 w-5 text-emerald-600 dark:text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+            }
+            title="Get notified"
+            body="Turn on location and alerts for your city and distance when we ship them."
+            tone="emerald"
+          />
+          <TipCard
+            icon={
+              <svg
+                className="h-5 w-5 text-purple-600 dark:text-purple-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+            }
+            title="Spread the word"
+            body="Know an estate sale company? Point them here to list for free."
+            tone="purple"
+          />
+        </div>
+      ) : null}
+
+      <div className="space-y-4">
+        {extraActions}
+        {footer ?? (
+          <p className="text-xs text-muted-foreground sm:text-sm">
+            Open directory · AGPL-3.0 · Community-built
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function TipCard({
-    icon,
-    title,
-    body,
-    tone = 'neutral',
+  icon,
+  title,
+  body,
+  tone = "indigo",
 }: {
-    icon: ReactNode;
-    title: string;
-    body: string;
-    tone?: 'neutral' | 'accent';
+  icon: ReactNode;
+  title: string;
+  body: string;
+  tone?: "indigo" | "emerald" | "purple";
 }) {
-    const toneClasses: Record<string, string> = {
-        neutral:
-            "border border-zinc-200 bg-zinc-100/90 text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200",
-        accent: "border border-accent/30 bg-accent/15 text-accent",
-    };
+  const toneClasses: Record<string, string> = {
+    indigo:
+      "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300",
+    emerald:
+      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300",
+    purple:
+      "bg-purple-100 text-purple-700 dark:bg-purple-950/80 dark:text-purple-300",
+  };
 
-    return (
-        <div className="rounded-xl border border-border bg-white/70 p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40 sm:p-6">
-            <div className={`mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg sm:mb-4 sm:h-12 sm:w-12 ${toneClasses[tone]}`}>
-                {icon}
-            </div>
-            <h3 className="mb-1 font-semibold text-foreground sm:mb-2">{title}</h3>
-            <p className="text-xs text-muted-foreground sm:text-sm">{body}</p>
-        </div>
-    );
+  return (
+    <div className="rounded-xl border border-border bg-card/80 p-5 shadow-sm backdrop-blur-sm sm:p-6 dark:bg-zinc-950/40">
+      <div
+        className={`mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg sm:mb-4 sm:h-12 sm:w-12 ${toneClasses[tone]}`}
+      >
+        {icon}
+      </div>
+      <h3 className="mb-1 font-semibold text-foreground sm:mb-2">{title}</h3>
+      <p className="text-xs text-muted-foreground sm:text-sm">{body}</p>
+    </div>
+  );
 }

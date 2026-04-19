@@ -178,17 +178,6 @@ export default function ExploreSales({
           </>
         ) : (
           <>
-            <ActiveFilters
-              filters={{ dateRange, saleType, distance }}
-              salesCount={filteredSales.length}
-            />
-
-            {filteredSales.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-white/70 p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40">
-                <EmptySales />
-              </div>
-            ) : null}
-
             {viewMode === "map" ? (
               <div className="overflow-hidden rounded-2xl border border-border bg-white/60 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40">
                 <div className="h-[520px]">
@@ -205,7 +194,32 @@ export default function ExploreSales({
               </div>
             ) : null}
 
-            {viewMode === "list" ? (
+            <div className={viewMode === "map" ? "mt-6" : ""}>
+              <ActiveFilters
+                filters={{ dateRange, saleType, distance }}
+                salesCount={filteredSales.length}
+              />
+            </div>
+
+            {filteredSales.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-border bg-white/70 p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40">
+                <EmptySales
+                  title={
+                    sales.length === 0
+                      ? undefined
+                      : "No matching sales"
+                  }
+                  subtitle={
+                    sales.length === 0
+                      ? undefined
+                      : "Try another search or filter—or switch to list view to browse everything loaded."
+                  }
+                  showTips={sales.length === 0}
+                />
+              </div>
+            ) : null}
+
+            {viewMode === "list" && filteredSales.length > 0 ? (
               <div className="mt-8 grid gap-5">
                 {filteredSales.map((s, index) => (
                   <SaleCard key={s.id} sale={s} priority={index < 3} />

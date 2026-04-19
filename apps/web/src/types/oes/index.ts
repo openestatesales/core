@@ -44,6 +44,8 @@ export type PublicSale = {
   view_count: number;
   published_at: string | null;
   created_at: string;
+  /** From joined operators row on `sales_public_listing`. */
+  operator_kind: "individual" | "company";
   photos?: PublicSalePhoto[];
   operator?: PublicOperator | null;
 };

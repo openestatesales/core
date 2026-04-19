@@ -76,7 +76,11 @@ export async function getSales({
 
   const { data: rows, error } = await query;
 
-  if (error || !rows?.length) {
+  if (error) {
+    console.error("getSales:", error.message);
+    return [];
+  }
+  if (!rows?.length) {
     return [];
   }
 

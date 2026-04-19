@@ -15,6 +15,8 @@ export type ExploreSale = MapSale & {
 };
 
 function isCompanySale(sale: MapSale): boolean {
+  if (sale.operator_kind === "company") return true;
+  if (sale.operator_kind === "individual") return false;
   return Boolean(sale.workspace_id && sale.workspace_id !== sale.created_by);
 }
 

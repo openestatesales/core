@@ -33,6 +33,8 @@ export type MapSale = {
   sale_dates?: { sale_date: string }[];
   /** Optional link target for “View Sale →” */
   href?: string;
+  /** When set (from DB), drives company vs private badge on listings */
+  operator_kind?: "individual" | "company" | null;
 };
 
 function coalesceCoords(sale: MapSale): { lat: number; lng: number } | null {
