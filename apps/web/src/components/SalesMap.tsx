@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { BRAND_HEX } from "@/lib/brand-color";
 import { loadGoogleMaps } from "@/utils/googleMaps";
-import { Target } from 'lucide-react';
 
 interface SalesMapProps {
   sales: MapSale[];
@@ -66,6 +65,9 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
   const centerDotRef = useRef<AnyMarker | null>(null);
   const salesMarkersRef = useRef<AnyMarker[]>([]);
   const radiusCircleRef = useRef<google.maps.Circle | null>(null);
+  const idleTimerRef = useRef<number | null>(null);
+  const suppressNextIdleRef = useRef(false);
+  const idleListenerRef = useRef<google.maps.MapsEventListener | null>(null);
 
   const metersPerMile = 1609.34;
 
@@ -195,15 +197,22 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
     return 2 * R * Math.asin(Math.sqrt(a));
   };
 
-  const handleCenterHere = () => {
+  const scheduleIdleCenterSync = useCallback(() => {
     if (!mapInstanceRef.current || !onCenterChange) return;
 
-    const center = mapInstanceRef.current.getCenter();
-    if (center) {
-      const newCenter: [number, number] = [center.lat(), center.lng()];
-      onCenterChange(newCenter);
+    if (suppressNextIdleRef.current) {
+      suppressNextIdleRef.current = false;
+      return;
     }
-  };
+
+    if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
+
+    idleTimerRef.current = window.setTimeout(() => {
+      const c = mapInstanceRef.current?.getCenter();
+      if (!c) return;
+      onCenterChange([c.lat(), c.lng()]);
+    }, 550);
+  }, [onCenterChange]);
 
   const plotSalesMarkers = useCallback(() => {
     if (!mapInstanceRef.current || typeof google === 'undefined') return;
@@ -359,6 +368,18 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
           }),
     });
 
+    if (idleListenerRef.current) {
+      idleListenerRef.current.remove();
+      idleListenerRef.current = null;
+    }
+    if (onCenterChange) {
+      idleListenerRef.current = google.maps.event.addListener(
+        mapInstanceRef.current,
+        "idle",
+        scheduleIdleCenterSync,
+      );
+    }
+
     if (center) {
       updateCenterDot(center);
       // Draw radius circle after map is initialized
@@ -368,7 +389,15 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
     }
 
     plotSalesMarkers(); // Call plotSalesMarkers after map initialization
-  }, [center, distance, drawRadiusCircle, plotSalesMarkers, updateCenterDot]);
+  }, [
+    center,
+    distance,
+    drawRadiusCircle,
+    onCenterChange,
+    plotSalesMarkers,
+    scheduleIdleCenterSync,
+    updateCenterDot,
+  ]);
 
   // Update radius circle when center or distance changes
   useEffect(() => {
@@ -384,6 +413,13 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
       mapInstanceRef.current.setZoom(newZoom);
     }
   }, [distance]);
+
+  // When the search center changes (e.g. typed address), pan map to it.
+  useEffect(() => {
+    if (!mapInstanceRef.current || !center) return;
+    suppressNextIdleRef.current = true;
+    mapInstanceRef.current.panTo({ lat: center[0], lng: center[1] });
+  }, [center]);
 
   useEffect(() => {
     const initializeGoogleMaps = async () => {
@@ -412,36 +448,16 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
     }
   }, [plotSalesMarkers]); // Re-plot markers when sales/center change
 
+  useEffect(() => {
+    return () => {
+      if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
+      if (idleListenerRef.current) idleListenerRef.current.remove();
+    };
+  }, []);
+
   return (
     <div className="relative w-full h-full">
       <div ref={mapRef} className="w-full h-full" />
-
-      {/* Purple Center Dot - Always Visible */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute w-4 h-4 transform -translate-x-1/2 -translate-y-1/2"
-          style={{
-            left: '50%',
-            top: '50%',
-          }}
-        >
-          <div className="w-4 h-4 bg-accent rounded-full shadow-lg"></div>
-        </div>
-      </div>
-
-      {/* Center Here Button */}
-      <div className="absolute top-24 left-4">
-        <button
-          onClick={handleCenterHere}
-          className="cursor-pointer bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-gray-200 hover:bg-white transition-colors"
-          title="Center search here"
-        >
-          <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-gray-700">Center Here</span>
-          </div>
-        </button>
-      </div>
     </div>
   );
 }

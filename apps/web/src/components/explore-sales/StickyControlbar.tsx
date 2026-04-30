@@ -8,7 +8,8 @@ type StickyControlBarProps = {
   // Location (controlled)
   location: string;
   onChangeLocation: (value: string) => void;
-  onLocationClick?: () => void; // open map
+  onSubmitLocation?: () => void;
+  onFocusLocation?: () => void;
   isUpdatingLocation?: boolean;
 
   // Filters (controlled)
@@ -36,7 +37,9 @@ type StickyControlBarProps = {
 
 export default function StickyControlBar({
   location,
-  onLocationClick,
+  onChangeLocation,
+  onSubmitLocation,
+  onFocusLocation,
   isUpdatingLocation = false,
   dateRange,
   distance,
@@ -76,46 +79,45 @@ export default function StickyControlBar({
         {/* Stack on mobile, row on md+ */}
         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 py-2 md:py-3">
           {/* Location */}
-          <div className="order-1 md:order-1 w-full md:flex-1 md:max-w-xs">
+          <div className="order-1 md:order-1 w-full md:flex-1 md:max-w-sm">
             <div className="relative">
               <input
                 type="text"
                 value={location}
-                readOnly
-                onClick={onLocationClick}
-                placeholder="City, state, or ZIP"
-                className={`w-full cursor-pointer rounded-lg border border-border bg-background px-3 py-2 pl-8 text-sm text-foreground placeholder:text-muted-foreground transition-colors hover:bg-accent/[0.04] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:bg-zinc-950/70 ${
+                onChange={(e) => onChangeLocation(e.target.value)}
+                onFocus={onFocusLocation}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") onSubmitLocation?.();
+                }}
+                placeholder="Address, city, or ZIP"
+                className={`w-full rounded-md border border-border bg-background px-3 py-2 pr-9 text-sm text-foreground placeholder:text-muted-foreground transition-colors hover:bg-accent/[0.04] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:bg-zinc-950/70 ${
                   isUpdatingLocation ? "border-accent bg-accent/[0.06] dark:bg-zinc-950/80" : ""
                 }`}
                 aria-label="Location"
-                title="Tap to choose location on map"
+                autoComplete="street-address"
               />
-              {isUpdatingLocation ? (
-                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent border-t-transparent" />
-                </div>
-              ) : (
-                <svg
-                  className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              )}
+              <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2">
+                {isUpdatingLocation ? (
+                  <div className="w-4 h-4">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent border-t-transparent" />
+                  </div>
+                ) : (
+                  <svg
+                    className="h-4 w-4 text-muted-foreground"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                )}
+              </div>
             </div>
           </div>
 
@@ -124,21 +126,21 @@ export default function StickyControlBar({
             <div className="scrollbar-hide flex items-center gap-2 overflow-x-auto overscroll-x-contain px-1 [-webkit-overflow-scrolling:touch] md:overflow-visible">
               <button
                 onClick={onCycleDateRange}
-                className="rounded-full border border-zinc-200 bg-zinc-100/90 px-3 py-2 text-sm font-medium whitespace-nowrap text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200 dark:hover:bg-zinc-900 md:py-1.5"
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium whitespace-nowrap text-foreground transition-colors hover:bg-accent/[0.04] dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:hover:bg-zinc-950/70 md:py-1.5"
                 type="button"
               >
                 {dateLabel}
               </button>
               <button
                 onClick={onCycleDistance}
-                className="rounded-full border border-zinc-200 bg-zinc-100/90 px-3 py-2 text-sm font-medium whitespace-nowrap text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200 dark:hover:bg-zinc-900 md:py-1.5"
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium whitespace-nowrap text-foreground transition-colors hover:bg-accent/[0.04] dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:hover:bg-zinc-950/70 md:py-1.5"
                 type="button"
               >
                 {distance} mi
               </button>
               <button
                 onClick={onCycleSaleType}
-                className="rounded-full border border-zinc-200 bg-zinc-100/90 px-3 py-2 text-sm font-medium whitespace-nowrap text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200 dark:hover:bg-zinc-900 md:py-1.5"
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium whitespace-nowrap text-foreground transition-colors hover:bg-accent/[0.04] dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:hover:bg-zinc-950/70 md:py-1.5"
                 type="button"
               >
                 {saleTypeLabel}

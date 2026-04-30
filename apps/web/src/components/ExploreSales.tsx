@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import SalesMap from "@/components/SalesMap";
 import ActiveFilters from "@/components/explore-sales/ActiveFilters";
@@ -18,6 +18,7 @@ import {
   type MarketplaceItem,
 } from "@/data/demo-marketplace-items";
 import { cn } from "@/lib/utils";
+import { geocodeLocation } from "@/utils/googleMaps";
 
 type Props = {
   sales: ExploreSale[];
@@ -33,12 +34,15 @@ export default function ExploreSales({
   initialCenter = [33.749, -84.388],
 }: Props) {
   const [center, setCenter] = useState<[number, number]>(initialCenter);
-  const [location, setLocation] = useState("Sales near me");
+  const [location, setLocation] = useState("");
   const [dateRange, setDateRange] = useState<DateRange>("all");
   const [distance, setDistance] = useState<number>(25);
   const [saleType, setSaleType] = useState<SaleType>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("map");
   const [marketplaceMode, setMarketplaceMode] = useState(false);
+  const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
+  const geocodeSeq = useRef(0);
+  const lastGeocodedQuery = useRef<string>("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -114,13 +118,61 @@ export default function ExploreSales({
     setSaleType(next);
   };
 
+  useEffect(() => {
+    const q = location.trim();
+    if (q.length < 3) return;
+
+    const canonical = q.toLowerCase();
+    if (canonical === lastGeocodedQuery.current) return;
+
+    const handle = window.setTimeout(() => {
+      const seq = ++geocodeSeq.current;
+      setIsUpdatingLocation(true);
+
+      geocodeLocation(q)
+        .then(({ center: nextCenter, label }) => {
+          if (seq !== geocodeSeq.current) return;
+          setCenter(nextCenter);
+          setLocation(label);
+          lastGeocodedQuery.current = label.trim().toLowerCase();
+        })
+        .catch(() => {
+          // Keep input unchanged; geocode failures shouldn't interrupt typing.
+        })
+        .finally(() => {
+          if (seq === geocodeSeq.current) setIsUpdatingLocation(false);
+        });
+    }, 600);
+
+    return () => window.clearTimeout(handle);
+  }, [location]);
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <StickyControlBar
         location={location}
         onChangeLocation={setLocation}
-        onLocationClick={() => setViewMode("map")}
-        isUpdatingLocation={false}
+        onFocusLocation={() => setViewMode("map")}
+        onSubmitLocation={() => {
+          lastGeocodedQuery.current = "";
+          const seq = ++geocodeSeq.current;
+          setIsUpdatingLocation(true);
+
+          geocodeLocation(location)
+            .then(({ center: nextCenter, label }) => {
+              if (seq !== geocodeSeq.current) return;
+              setCenter(nextCenter);
+              setLocation(label);
+              lastGeocodedQuery.current = label.trim().toLowerCase();
+            })
+            .catch(() => {
+              // noop
+            })
+            .finally(() => {
+              if (seq === geocodeSeq.current) setIsUpdatingLocation(false);
+            });
+        }}
+        isUpdatingLocation={isUpdatingLocation}
         dateRange={dateRange}
         distance={distance}
         saleType={saleType}
@@ -199,7 +251,6 @@ export default function ExploreSales({
                 distance={distance}
                 onCenterChange={(c) => {
                   setCenter(c);
-                  setLocation(`${c[0].toFixed(3)}, ${c[1].toFixed(3)}`);
                 }}
               />
             </div>

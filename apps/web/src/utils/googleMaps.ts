@@ -83,3 +83,34 @@ export const loadGoogleMaps = (): Promise<void> => {
 export const isGoogleMapsReady = (): boolean => {
   return isGoogleMapsLoaded && typeof google !== "undefined";
 };
+
+export async function geocodeLocation(
+  query: string,
+): Promise<{ center: [number, number]; label: string }> {
+  const q = query.trim();
+  if (!q) throw new Error("Missing location query");
+
+  await loadGoogleMaps();
+
+  if (typeof google === "undefined" || typeof google.maps?.Geocoder !== "function") {
+    throw new Error("Google Maps Geocoder is unavailable");
+  }
+
+  const geocoder = new google.maps.Geocoder();
+
+  const results = await new Promise<google.maps.GeocoderResult[]>((resolve, reject) => {
+    geocoder.geocode({ address: q }, (res, status) => {
+      if (status === "OK" && res && res.length > 0) resolve(res);
+      else reject(new Error(`Geocoding failed: ${status}`));
+    });
+  });
+
+  const top = results[0];
+  const loc = top.geometry?.location;
+  if (!loc) throw new Error("Geocoding result missing geometry");
+
+  return {
+    center: [loc.lat(), loc.lng()],
+    label: top.formatted_address || q,
+  };
+}
