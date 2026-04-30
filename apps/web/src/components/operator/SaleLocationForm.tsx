@@ -82,7 +82,9 @@ function parsePhoneDisplay(raw: string): PhoneDisplay {
 
 export default function SaleLocationForm({ saleId, initial }: Props) {
   const router = useRouter();
-  const [title, setTitle] = useState(initial.title);
+  const [title, setTitle] = useState(() =>
+    initial.title === "Untitled sale" ? "" : initial.title,
+  );
   const [saleKind, setSaleKind] = useState<SaleKindValue>(() =>
     isSaleKind(initial.sale_kind) ? initial.sale_kind : "estate_sale",
   );
@@ -294,7 +296,7 @@ export default function SaleLocationForm({ saleId, initial }: Props) {
   return (
     <OperatorSaleWizardShell
       saleId={saleId}
-      draftTitle={initial.title}
+      draftTitle={initial.title === "Untitled sale" ? "Draft" : initial.title}
       heading="Basics & location"
       description="Name your sale, choose the type, contact preferences, directions, and the street address buyers will see after reveal."
     >

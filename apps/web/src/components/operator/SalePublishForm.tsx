@@ -75,7 +75,7 @@ export default function SalePublishForm({ saleId, initial }: Props) {
 
         <p className="text-sm text-muted-foreground">
           Publishing requires basics &amp; location, listing copy (terms + description), and at
-          least one scheduled sale day. Use a real sale name (not the default &quot;New sale&quot;).
+          least one scheduled sale day. Use a real sale name (not &quot;Untitled sale&quot;).
         </p>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">

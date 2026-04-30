@@ -81,7 +81,7 @@ export async function createSale(): Promise<
     .from("sales")
     .insert({
       operator_id: user.id,
-      title: "New sale",
+      title: "Untitled sale",
       description: null,
       city,
       state,
@@ -339,7 +339,7 @@ export async function publishSale(saleId: string): Promise<
   }
 
   const t = row.title.trim();
-  if (!t || t === "New sale") {
+  if (!t || t === "Untitled sale") {
     return { ok: false, message: "Set a descriptive sale name before publishing." };
   }
 

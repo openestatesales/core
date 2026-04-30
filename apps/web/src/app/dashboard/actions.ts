@@ -76,7 +76,7 @@ export async function createDraftSale(): Promise<ActionResult<{ saleId: string }
     .from("sales")
     .insert({
       operator_id: user.id,
-      title: "New sale",
+      title: "Untitled sale",
       description: null,
       city,
       state,
@@ -178,5 +178,21 @@ export async function getSaleForOperator(
   if (error) return { ok: false, message: error.message };
   if (!data) return { ok: false, message: "Sale not found." };
   return { ok: true, data };
+}
+
+export async function deleteSale(saleId: string): Promise<ActionResult> {
+  const { supabase, user } = await getUser();
+  if (!user) return { ok: false, message: "Not signed in." };
+
+  const { error } = await supabase
+    .from("sales")
+    .delete()
+    .eq("id", saleId)
+    .eq("operator_id", user.id);
+
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
