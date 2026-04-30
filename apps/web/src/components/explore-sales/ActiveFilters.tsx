@@ -36,10 +36,6 @@ export default function ActiveFilters({ filters, salesCount, className = '' }: P
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/90 sm:gap-4 sm:text-sm dark:text-zinc-200">
-          <span className="font-medium text-muted-foreground dark:text-zinc-300">
-            Active filters
-          </span>
-
           {filters.dateRange && (
             <span className="rounded-full border border-zinc-200 bg-zinc-100/90 px-2 py-1 text-xs text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200">
               {getDateRangeLabel(filters.dateRange)}
