@@ -4,7 +4,7 @@ import "./globals.css";
 import { DevelopmentStageBanner } from "@/components/DevelopmentStageBanner";
 import { Footer } from "@/components/FooterBar";
 import { NavBarGate } from "@/components/NavBarGate";
-import { PersonaProvider } from "@/components/persona/PersonaProvider";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s — Open Estate Sales",
   },
   description:
-    "Find local estate sales on the map or list your own — free for shoppers and operators.",
+    "Find local estate sales on the map — free and open.",
 };
 
 export default function RootLayout({
@@ -51,7 +51,7 @@ export default function RootLayout({
     >
       <body className="font-sans relative min-h-full bg-background text-foreground">
         <ThemeProvider>
-          <PersonaProvider>
+          <AuthProvider>
             <div
               className="grain opacity-[0.02] dark:opacity-[0.18]"
               aria-hidden
@@ -62,7 +62,7 @@ export default function RootLayout({
               <div className="flex flex-1 flex-col">{children}</div>
               <Footer />
             </div>
-          </PersonaProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

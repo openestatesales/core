@@ -4,7 +4,6 @@ import { auth, type AuthResult } from "./actions";
 import ForgotPassword from "@/components/ForgotPassword";
 import { SiteLogo } from "@/components/icons/Logo";
 import { loginSchema, type LoginFormData } from "@/form-schemas/login";
-import type { Persona } from "@/lib/persona";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarRange, MapPin, Sparkles, Store } from "lucide-react";
@@ -29,7 +28,7 @@ const OPERATOR_BENEFITS = [
   {
     Icon: CalendarRange,
     title: "Photos & schedules",
-    body: "Show what’s inside and when you’re open—everything shoppers need to plan a visit.",
+    body: "Show what’s inside and when you’re open—clear details shoppers can rely on.",
   },
   {
     Icon: Store,
@@ -102,8 +101,7 @@ function OperatorBenefitsAside({ className }: { className?: string }) {
           List estate sales without the platform tax.
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-white/75">
-          Shoppers browse free; operators list free. Same account—pick shopper or
-          operator when you sign up.
+          Publish listings, manage drafts, and keep your sale details up to date.
         </p>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-3.5">
@@ -134,7 +132,6 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [signupPersona, setSignupPersona] = useState<Persona>("shopper");
 
   const [authState, authFormAction] = useActionState(auth, initialAuthState);
   const [pending, startTransition] = useTransition();
@@ -156,7 +153,7 @@ function LoginForm() {
     fd.set("email", values.email);
     fd.set("password", values.password);
     if (!isLogin) fd.set("terms", agreedToTerms ? "on" : "");
-    if (!isLogin) fd.set("persona", signupPersona);
+    fd.set("next", searchParams.get("next") ?? "/dashboard");
     startTransition(() => {
       authFormAction(fd);
     });
@@ -186,8 +183,7 @@ function LoginForm() {
           <div className="mb-8 text-left">
             <SiteLogo className="inline-flex" />
             <p className="mt-3 text-sm text-muted-foreground">
-              Sign in to browse or list. New accounts pick shopper or operator on
-              sign up.
+              Operator sign in. Manage listings and publish sales.
             </p>
           </div>
 
@@ -254,45 +250,13 @@ function LoginForm() {
                     </div>
                   ) : null}
 
-                  {!isLogin ? (
-                    <div className="rounded-xl border border-border bg-muted/40 p-4">
-                      <p className="mb-3 text-center text-sm font-medium text-foreground">
-                        How are you using Open Estate Sales?
-                      </p>
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        <button
-                          type="button"
-                          onClick={() => setSignupPersona("shopper")}
-                          className={cn(
-                            "rounded-lg border px-3 py-3 text-left text-sm transition",
-                            signupPersona === "shopper"
-                              ? "border-primary bg-primary/10 text-foreground shadow-sm"
-                              : "border-border text-muted-foreground hover:border-input",
-                          )}
-                        >
-                          <span className="font-semibold">Shopper</span>
-                          <span className="mt-1 block text-xs text-muted-foreground">
-                            Browse sales, save favorites, get alerts.
-                          </span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSignupPersona("operator")}
-                          className={cn(
-                            "rounded-lg border px-3 py-3 text-left text-sm transition",
-                            signupPersona === "operator"
-                              ? "border-primary bg-primary/10 text-foreground shadow-sm"
-                              : "border-border text-muted-foreground hover:border-input",
-                          )}
-                        >
-                          <span className="font-semibold">Operator</span>
-                          <span className="mt-1 block text-xs text-muted-foreground">
-                            List sales and manage your listings.
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
+                {!isLogin ? (
+                  <div className="rounded-xl border border-border bg-muted/40 p-4">
+                    <p className="text-sm text-foreground">
+                      New accounts are for operators who need to publish and manage sales.
+                    </p>
+                  </div>
+                ) : null}
 
                   <div>
                     <label

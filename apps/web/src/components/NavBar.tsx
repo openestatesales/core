@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { OperatorAccountMenu } from "@/components/operator/OperatorAccountMenu";
-import { usePersona } from "@/components/persona/PersonaProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { SiteLogo } from "@/components/icons/Logo";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ type NavBarProps = {
 };
 
 export function NavBar({ className }: NavBarProps) {
-  const { user, loading } = usePersona();
+  const { user, loading } = useAuth();
 
   return (
     <header

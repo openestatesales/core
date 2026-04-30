@@ -1,6 +1,5 @@
 import { OperatorProfileForm } from "@/components/operator/OperatorProfileForm";
 import { createClient } from "@/lib/supabase/server";
-import { parsePersonaFromMetadata } from "@/lib/persona";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -12,10 +11,6 @@ export default async function OperatorProfilePage() {
 
   if (!user?.email) {
     redirect("/login?next=/dashboard/profile");
-  }
-
-  if (parsePersonaFromMetadata(user.user_metadata) !== "operator") {
-    redirect("/sales");
   }
 
   const { data: row } = await supabase

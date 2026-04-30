@@ -1,7 +1,6 @@
 "use client";
 
-import { PersonaMenuSection } from "@/components/PersonaSwitcher";
-import { usePersona } from "@/components/persona/PersonaProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -39,7 +38,7 @@ function letterFromOperator(
  * Account menu: circular avatar (logo or initial), persona mode, dashboard/profile when listing, sign out.
  */
 export function OperatorAccountMenu({ className }: { className?: string }) {
-  const { user, persona, loading } = usePersona();
+  const { user, loading } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -122,30 +121,24 @@ export function OperatorAccountMenu({ className }: { className?: string }) {
           role="menu"
           className="border-border bg-popover text-popover-foreground absolute right-0 z-50 mt-2 w-56 rounded-lg border py-1 text-sm shadow-md"
         >
-          <PersonaMenuSection onAfterSelect={() => setOpen(false)} />
-
-          {persona === "operator" ? (
-            <>
-              <Link
-                role="menuitem"
-                href="/dashboard"
-                className="hover:bg-muted flex items-center gap-2 px-3 py-2 transition-colors"
-                onClick={() => setOpen(false)}
-              >
-                <LayoutGrid className="text-muted-foreground size-4" aria-hidden />
-                Dashboard
-              </Link>
-              <Link
-                role="menuitem"
-                href="/dashboard/profile"
-                className="hover:bg-muted flex items-center gap-2 px-3 py-2 transition-colors"
-                onClick={() => setOpen(false)}
-              >
-                <UserRound className="text-muted-foreground size-4" aria-hidden />
-                Profile
-              </Link>
-            </>
-          ) : null}
+          <Link
+            role="menuitem"
+            href="/dashboard"
+            className="hover:bg-muted flex items-center gap-2 px-3 py-2 transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            <LayoutGrid className="text-muted-foreground size-4" aria-hidden />
+            Dashboard
+          </Link>
+          <Link
+            role="menuitem"
+            href="/dashboard/profile"
+            className="hover:bg-muted flex items-center gap-2 px-3 py-2 transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            <UserRound className="text-muted-foreground size-4" aria-hidden />
+            Profile
+          </Link>
 
           <div className="bg-border my-1 h-px" role="separator" />
 

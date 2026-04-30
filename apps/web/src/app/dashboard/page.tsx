@@ -1,6 +1,5 @@
 import { OperatorDashboardHub } from "@/components/operator/dashboard/OperatorDashboardHub";
 import { createClient } from "@/lib/supabase/server";
-import { parsePersonaFromMetadata } from "@/lib/persona";
 
 export default async function DashboardHomePage() {
   const supabase = await createClient();
@@ -11,8 +10,6 @@ export default async function DashboardHomePage() {
   if (!user) {
     return null;
   }
-
-  const isOperator = parsePersonaFromMetadata(user.user_metadata) === "operator";
 
   const { data: sales } = await supabase
     .from("sales")
@@ -25,7 +22,7 @@ export default async function DashboardHomePage() {
   return (
     <OperatorDashboardHub
       sales={sales ?? []}
-      showOperatorProfileLink={isOperator}
+      showOperatorProfileLink
     />
   );
 }
