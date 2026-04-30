@@ -11,12 +11,6 @@ import StickyControlBar, {
   type SaleType,
   type ViewMode,
 } from "@/components/explore-sales/StickyControlbar";
-import MarketplaceCard from "@/components/shopper/MarketplaceCard";
-import UniversalSaleSearch from "@/components/explore-sales/UniversalSaleSearch";
-import {
-  DEMO_MARKETPLACE_ITEMS,
-  type MarketplaceItem,
-} from "@/data/demo-marketplace-items";
 import { cn } from "@/lib/utils";
 import { geocodeLocation } from "@/utils/googleMaps";
 
@@ -39,13 +33,9 @@ export default function ExploreSales({
   const [distance, setDistance] = useState<number>(25);
   const [saleType, setSaleType] = useState<SaleType>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("map");
-  const [marketplaceMode, setMarketplaceMode] = useState(false);
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
   const geocodeSeq = useRef(0);
   const lastGeocodedQuery = useRef<string>("");
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const filteredSales = useMemo(() => {
     let out = sales;
@@ -59,46 +49,8 @@ export default function ExploreSales({
       });
     }
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      out = out.filter(
-        (s) =>
-          s.title.toLowerCase().includes(q) ||
-          `${s.city}, ${s.state}`.toLowerCase().includes(q),
-      );
-    }
-
     return out;
-  }, [sales, saleType, searchQuery]);
-
-  const itemCategories = useMemo(() => {
-    const set = new Set<string>();
-    for (const item of DEMO_MARKETPLACE_ITEMS) {
-      item.tags?.forEach((t) => set.add(t));
-    }
-    return Array.from(set).sort();
-  }, []);
-
-  const filteredItems = useMemo(() => {
-    let out: MarketplaceItem[] = [...DEMO_MARKETPLACE_ITEMS];
-
-    if (selectedCategory !== "all") {
-      out = out.filter((i) => i.tags?.includes(selectedCategory));
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      out = out.filter(
-        (i) =>
-          i.title.toLowerCase().includes(q) ||
-          (i.description ?? "").toLowerCase().includes(q) ||
-          i.saleTitle?.toLowerCase().includes(q) ||
-          Boolean(i.tags?.some((t) => t.toLowerCase().includes(q))),
-      );
-    }
-
-    return out;
-  }, [searchQuery, selectedCategory]);
+  }, [sales, saleType]);
 
   const onCycleDistance = () => {
     const idx = distanceCycle.findIndex((d) => d === distance);
@@ -180,129 +132,80 @@ export default function ExploreSales({
         onCycleDistance={onCycleDistance}
         onCycleSaleType={onCycleSaleType}
         viewMode={viewMode}
-        marketplaceMode={marketplaceMode}
         onSetViewMode={setViewMode}
-        onSetMarketplaceMode={setMarketplaceMode}
         salesCount={filteredSales.length}
-        itemsCount={filteredItems.length}
+        itemsCount={0}
       />
 
-      <UniversalSaleSearch
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-        marketplaceMode={marketplaceMode}
-        availableCategories={itemCategories}
-      />
-
-      {marketplaceMode ? (
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
-          <div className="mb-6 flex flex-col gap-2 rounded-xl border border-border bg-card/80 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between dark:bg-zinc-950/40">
-            <p className="text-sm text-muted-foreground">
-              Item previews from nearby sales · Within {distance} mi
-            </p>
-            <p className="text-sm font-semibold text-accent">
-              {filteredItems.length} item{filteredItems.length !== 1 ? "s" : ""}
-            </p>
-          </div>
-
-          {filteredItems.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-12 text-center text-muted-foreground">
-              No items match your search. Try another category or keyword.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {filteredItems.map((item) => (
-                <MarketplaceCard
-                  key={item.itemId}
-                  saleId={item.saleId}
-                  itemId={item.itemId}
-                  regionSlug={item.regionSlug}
-                  listingSlug={item.listingSlug}
-                  title={item.title}
-                  description={item.description}
-                  imageUrl={item.imageUrl}
-                  tags={item.tags ?? []}
-                  saleTitle={item.saleTitle}
-                />
-              ))}
-            </div>
-          )}
-        </main>
-      ) : (
+      <div
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-hidden",
+          "lg:min-h-[min(900px,calc(100dvh-7.5rem))] lg:flex-row",
+        )}
+      >
+        {/* Map — left; full-width on mobile when map mode */}
         <div
           className={cn(
-            "flex min-h-0 flex-1 flex-col overflow-hidden",
-            "lg:min-h-[min(900px,calc(100dvh-7.5rem))] lg:flex-row",
+            "relative min-h-[48vh] w-full min-w-0 bg-muted lg:min-h-0 lg:flex-[1.2_1_0%]",
+            viewMode === "list" && "hidden lg:block",
           )}
         >
-          {/* Map — left; full-width on mobile when map mode */}
-          <div
-            className={cn(
-              "relative min-h-[48vh] w-full min-w-0 bg-muted lg:min-h-0 lg:flex-[1.2_1_0%]",
-              viewMode === "list" && "hidden lg:block",
-            )}
-          >
-            <div className="absolute inset-0 min-h-[48vh] lg:min-h-full">
-              <SalesMap
-                sales={filteredSales}
-                center={center}
-                distance={distance}
-                onCenterChange={(c) => {
-                  setCenter(c);
-                }}
-              />
-            </div>
+          <div className="absolute inset-0 min-h-[48vh] lg:min-h-full">
+            <SalesMap
+              sales={filteredSales}
+              center={center}
+              distance={distance}
+              onCenterChange={(c) => {
+                setCenter(c);
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Results — right; 2×n grid on lg+; full-width list on mobile */}
+        <aside
+          className={cn(
+            "flex w-full flex-col overflow-hidden border-t border-border bg-background",
+            "lg:w-[min(100%,440px)] lg:shrink-0 lg:border-l lg:border-t-0 xl:w-[min(100%,500px)]",
+            viewMode === "map" && "hidden max-h-none lg:flex",
+          )}
+        >
+          <div className="shrink-0 border-b border-border bg-background/95 px-2 py-1.5 backdrop-blur-sm sm:px-3 lg:sticky lg:top-0 lg:z-10">
+            <ActiveFilters
+              filters={{ dateRange, saleType, distance }}
+              salesCount={filteredSales.length}
+              className="mb-0 rounded-lg border-0 bg-transparent p-2 shadow-none sm:p-3"
+            />
           </div>
 
-          {/* Results — right; 2×n grid on lg+; full-width list on mobile */}
-          <aside
-            className={cn(
-              "flex w-full flex-col overflow-hidden border-t border-border bg-background",
-              "lg:w-[min(100%,440px)] lg:shrink-0 lg:border-l lg:border-t-0 xl:w-[min(100%,500px)]",
-              viewMode === "map" && "hidden max-h-none lg:flex",
-            )}
-          >
-            <div className="shrink-0 border-b border-border bg-background/95 px-2 py-1.5 backdrop-blur-sm sm:px-3 lg:sticky lg:top-0 lg:z-10">
-              <ActiveFilters
-                filters={{ dateRange, saleType, distance }}
-                salesCount={filteredSales.length}
-                className="mb-0 rounded-lg border-0 bg-transparent p-2 shadow-none sm:p-3"
-              />
-            </div>
-
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-8 pt-2 sm:px-3">
-              {filteredSales.length === 0 ? (
-                <div className="rounded-xl border border-border bg-card/90 p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/50 sm:p-6">
-                  <EmptySales
-                    title={
-                      sales.length === 0 ? undefined : "No matching sales"
-                    }
-                    subtitle={
-                      sales.length === 0
-                        ? undefined
-                        : "Try another search or loosen filters."
-                    }
-                    showTips={sales.length === 0}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-8 pt-2 sm:px-3">
+            {filteredSales.length === 0 ? (
+              <div className="rounded-xl border border-border bg-card/90 p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/50 sm:p-6">
+                <EmptySales
+                  title={sales.length === 0 ? undefined : "No matching sales"}
+                  subtitle={
+                    sales.length === 0
+                      ? undefined
+                      : "Try another search or loosen filters."
+                  }
+                  showTips={sales.length === 0}
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                {filteredSales.map((s, index) => (
+                  <SaleCard
+                    key={s.id}
+                    sale={s}
+                    variant="grid"
+                    priority={index < 8}
                   />
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  {filteredSales.map((s, index) => (
-                    <SaleCard
-                      key={s.id}
-                      sale={s}
-                      variant="grid"
-                      priority={index < 8}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </aside>
-        </div>
-      )}
+                ))}
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

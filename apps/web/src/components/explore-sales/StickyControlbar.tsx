@@ -24,13 +24,11 @@ type StickyControlBarProps = {
 
   // View (controlled)
   viewMode: ViewMode;
-  marketplaceMode: boolean;
   onSetViewMode: (view: ViewMode) => void;
-  onSetMarketplaceMode: (enabled: boolean) => void;
 
   // Counts
   salesCount: number;
-  itemsCount: number;
+  itemsCount?: number;
 
   className?: string;
 };
@@ -48,11 +46,8 @@ export default function StickyControlBar({
   onCycleDistance,
   onCycleSaleType,
   viewMode,
-  marketplaceMode,
   onSetViewMode,
-  onSetMarketplaceMode,
   salesCount,
-  itemsCount,
   className = '',
 }: StickyControlBarProps) {
   const dateLabel =
@@ -75,9 +70,9 @@ export default function StickyControlBar({
     <div
       className={`sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md dark:border-zinc-800/90 dark:bg-surface/85 ${className}`}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="w-full px-3 sm:px-4">
         {/* Stack on mobile, row on md+ */}
-        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 py-2 md:py-3">
+        <div className="flex flex-col gap-2 py-2 md:flex-row md:items-center md:gap-2 md:py-3">
           {/* Location */}
           <div className="order-1 md:order-1 w-full md:flex-1 md:max-w-sm">
             <div className="relative">
@@ -148,61 +143,39 @@ export default function StickyControlBar({
             </div>
           </div>
 
-          {/* Mobile: List | Map | Marketplace. Desktop (lg+): map+grid always — only Marketplace toggle. */}
+          {/* Mobile: List | Map */}
           <div className="order-4 md:order-3 w-full md:w-auto">
             <div className="flex w-full rounded-lg border border-border bg-zinc-100/80 p-1 dark:border-zinc-800 dark:bg-zinc-900/60 md:w-auto lg:inline-flex lg:min-w-0">
               <div className="flex flex-1 gap-0.5 lg:hidden">
                 <button
                   onClick={() => {
-                    onSetMarketplaceMode(false);
                     onSetViewMode("list");
                   }}
                   className={`min-w-0 flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 md:py-1.5 ${
-                    viewMode === "list" && !marketplaceMode
+                    viewMode === "list"
                       ? "bg-accent text-white shadow-sm"
                       : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
                   }`}
                   type="button"
-                  aria-pressed={viewMode === "list" && !marketplaceMode}
+                  aria-pressed={viewMode === "list"}
                 >
                   List
                 </button>
                 <button
                   onClick={() => {
-                    onSetMarketplaceMode(false);
                     onSetViewMode("map");
                   }}
                   className={`min-w-0 flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 md:py-1.5 ${
-                    viewMode === "map" && !marketplaceMode
+                    viewMode === "map"
                       ? "bg-accent text-white shadow-sm"
                       : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
                   }`}
                   type="button"
-                  aria-pressed={viewMode === "map" && !marketplaceMode}
+                  aria-pressed={viewMode === "map"}
                 >
                   Map
                 </button>
               </div>
-              <button
-                onClick={() => {
-                  if (marketplaceMode) {
-                    onSetMarketplaceMode(false);
-                    onSetViewMode("map");
-                  } else {
-                    onSetMarketplaceMode(true);
-                    onSetViewMode("list");
-                  }
-                }}
-                className={`rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 lg:px-5 md:py-1.5 ${
-                  marketplaceMode
-                    ? "bg-accent text-white shadow-sm"
-                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-                } ${!marketplaceMode ? "max-lg:flex-1" : "w-full max-lg:flex-1"}`}
-                type="button"
-                aria-pressed={marketplaceMode}
-              >
-                {marketplaceMode ? "Estate sales" : "Marketplace"}
-              </button>
             </div>
           </div>
 
@@ -211,7 +184,7 @@ export default function StickyControlBar({
             className="order-2 text-sm font-medium text-muted-foreground md:order-4 md:ml-auto"
             aria-live="polite"
           >
-            {marketplaceMode ? `${itemsCount} items` : `${salesCount} sales`}
+            {`${salesCount} sales`}
           </div>
         </div>
       </div>

@@ -22,25 +22,23 @@ export function NavBar({ className }: NavBarProps) {
         className,
       )}
     >
-      <div className="mx-auto flex h-14 max-w-6xl flex-wrap items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
-        <div className="flex min-w-0 flex-1 items-baseline gap-2 sm:gap-3">
+      <div className="flex h-14 w-full items-center gap-4 px-3 sm:h-16 sm:px-4">
+        <div className="flex min-w-0 items-baseline gap-2 sm:gap-3">
           <SiteLogo size="compact" />
         </div>
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2 sm:gap-3 md:flex-nowrap md:justify-end md:gap-4">
-          <div className="flex items-center gap-2 sm:gap-3">
-            {!loading && user ? <OperatorAccountMenu /> : null}
-            {!loading && !user ? (
-              <Link
-                href="/login"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "font-semibold uppercase tracking-wider",
-                )}
-              >
-                Sign in
-              </Link>
-            ) : null}
-          </div>
+        <div className="ml-auto flex items-center gap-2 sm:gap-3 md:gap-4">
+          {!loading && user ? <OperatorAccountMenu /> : null}
+          {!loading && !user ? (
+            <Link
+              href="/login"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "font-semibold uppercase tracking-wider",
+              )}
+            >
+              Sign in
+            </Link>
+          ) : null}
         </div>
       </div>
     </header>

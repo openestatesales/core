@@ -15,7 +15,7 @@ const freeFeatures = [
   "Up to 200 photos per sale",
   "Unlimited free estate sales",
   "Company profile page",
-  "Marketplace listings",
+  "Searchable public listings",
   "Standard access to client leads",
   "Access to marketing tools",
   "60-day listing retention (then archived to keep storage sustainable)",
