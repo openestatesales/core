@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import {
   ArrowRight,
   CalendarRange,
-  LayoutGrid,
+  Home,
   MapPin,
   Search,
 } from "lucide-react";
@@ -80,25 +80,13 @@ function statusLabel(status: string): string {
 
 type Props = {
   sales: DashboardSaleRow[];
-  showOperatorProfileLink: boolean;
 };
 
 export function OperatorDashboardHub({
   sales,
-  showOperatorProfileLink,
 }: Props) {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
-
-  const totals = useMemo(
-    () => ({
-      total: sales.length,
-      published: sales.filter((s) => s.status === "published").length,
-      drafts: sales.filter((s) => s.status === "draft").length,
-      ended: sales.filter((s) => s.status === "ended").length,
-    }),
-    [sales],
-  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -107,51 +95,63 @@ export function OperatorDashboardHub({
       const okSearch =
         !q ||
         s.title.toLowerCase().includes(q) ||
-        s.city.toLowerCase().includes(q) ||
-        s.state.toLowerCase().includes(q);
+        s.listing_slug.toLowerCase().includes(q) ||
+        s.id.toLowerCase().includes(q);
       return okStatus && okSearch;
     });
   }, [sales, status, search]);
 
   return (
-    <div className="relative min-h-full flex-1 overflow-hidden">
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.18),transparent),radial-gradient(ellipse_60%_40%_at_100%_50%,rgba(16,185,129,0.12),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.12),transparent)]"
-        aria-hidden
-      />
+    <div className="min-h-full flex-1 bg-background">
+      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+        <header className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl uppercase tracking-tight text-foreground sm:text-3xl">
+              Dashboard
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Draft, publish, and manage your estate sales.
+            </p>
+          </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-        <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <CreateDraftSaleButton
-            size="lg"
-            label="Create new sale"
-            className="h-12 shrink-0 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 px-8 text-base shadow-lg transition hover:from-emerald-500 hover:to-indigo-500 hover:shadow-xl"
-          />
+          {sales.length > 0 ? (
+            <CreateDraftSaleButton
+              size="sm"
+              label="New sale"
+              className="rounded-lg px-4"
+            />
+          ) : null}
         </header>
-        {/* Filters */}
-        <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-border bg-card/80 p-4 shadow-sm backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/50 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-          <div className="relative max-w-md flex-1">
+
+        {/* Search + status */}
+        <div className="mt-8">
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40 sm:p-5">
+            <div className="flex flex-col gap-3">
+              <div className="flex w-full max-w-3xl items-stretch gap-2">
+                <div className="relative min-w-0 flex-1">
             <Search
-              className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                    className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
             />
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title, city, or state…"
-              className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 dark:border-zinc-800 dark:bg-zinc-950/50"
+              placeholder="Search by title or listing slug…"
+                    className="h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 dark:border-zinc-800 dark:bg-zinc-950/50"
               aria-label="Search sales"
             />
-          </div>
-          <div className="flex flex-wrap gap-2">
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
             {STATUS_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setStatus(opt.value)}
                 className={cn(
-                  "rounded-full border px-3.5 py-1.5 text-sm font-medium transition",
+                      "h-9 rounded-full border px-3.5 text-sm font-medium transition",
                   status === opt.value
                     ? "border-accent bg-accent text-white shadow-sm"
                     : "border-border bg-background/80 text-muted-foreground hover:border-accent/40 hover:text-foreground dark:border-zinc-800 dark:bg-zinc-950/40",
@@ -160,6 +160,8 @@ export function OperatorDashboardHub({
                 {opt.label}
               </button>
             ))}
+          </div>
+            </div>
           </div>
         </div>
 
@@ -176,39 +178,6 @@ export function OperatorDashboardHub({
           </ul>
         )}
       </div>
-    </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  accent,
-  highlight,
-}: {
-  label: string;
-  value: number;
-  accent: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br p-5 shadow-sm dark:border-zinc-800",
-        accent,
-        highlight && "ring-2 ring-emerald-500/30 dark:ring-emerald-500/20",
-      )}
-    >
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-2 font-display text-3xl font-bold tabular-nums text-foreground">
-        {value}
-      </p>
-      <LayoutGrid
-        className="absolute bottom-3 right-3 size-10 text-foreground/[0.06] dark:text-white/[0.06]"
-        aria-hidden
-      />
     </div>
   );
 }
@@ -278,23 +247,23 @@ function SaleHubCard({ sale }: { sale: DashboardSaleRow }) {
 
 function EmptyState({ hasAnySales }: { hasAnySales: boolean }) {
   return (
-    <div className="mt-12 flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950/30">
-      <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/20 to-emerald-500/20 ring-1 ring-border">
-        <LayoutGrid className="size-7 text-accent" aria-hidden />
+    <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 py-16 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40">
+      <div className="mb-5 flex size-16 items-center justify-center rounded-2xl bg-accent/10 ring-1 ring-border">
+        <Home className="size-8 text-accent" aria-hidden />
       </div>
-      <h2 className="text-lg font-semibold text-foreground">
+      <h2 className="text-2xl font-bold tracking-tight text-foreground">
         {hasAnySales ? "No sales match filters" : "No sales yet"}
       </h2>
-      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">
         {hasAnySales
           ? "Try clearing search or switching the status filter."
-          : "Create your first draft and we’ll walk you through location, copy, dates, and photos."}
+          : "Create a draft, add details, and publish when you’re ready."}
       </p>
       {!hasAnySales ? (
-        <div className="mt-6">
+        <div className="mt-7">
           <CreateDraftSaleButton
             label="Create your first sale"
-            className="rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 px-6 shadow-md hover:from-emerald-500 hover:to-indigo-500"
+            className="rounded-xl px-6 shadow-sm"
           />
         </div>
       ) : null}
