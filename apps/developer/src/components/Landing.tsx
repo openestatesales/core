@@ -78,7 +78,6 @@ export function Landing({
               <Link href="/docs">Docs</Link>
               <Link href="/sdks">SDKs & APIs</Link>
               <Link href="/support">Support</Link>
-              <Link href="/changelog">Changelog</Link>
             </nav>
 
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -110,9 +109,6 @@ export function Landing({
                   <Link className="btn btnPrimary" href="/docs">
                     Start building <ArrowRight />
                   </Link>
-                  <Link className="btn" href="/changelog">
-                    View updates <ArrowRight />
-                  </Link>
                 </div>
               </div>
             </div>
@@ -143,7 +139,7 @@ export function Landing({
               <Tile
                 title="Webhooks (soon)"
                 body="Event-driven updates when a sale is created, updated, or published."
-                href="/changelog"
+                href="/docs"
               />
               <Tile
                 title="SDKs (WIP)"
@@ -153,7 +149,7 @@ export function Landing({
               <Tile
                 title="Status + changelog"
                 body="What shipped, what’s next, and how to track platform changes."
-                href="/changelog"
+                href="/docs"
               />
             </div>
 
@@ -185,29 +181,6 @@ export function Landing({
           </div>
         </section>
 
-        <section className="section">
-          <div className="container">
-            <p className="kicker">Changelog</p>
-            <h2 className="h2">Shipping in public</h2>
-            <div className="tiles" style={{ marginTop: 14 }}>
-              <Tile
-                title="Monorepo + developer app"
-                body="TurboRepo setup with apps/web and apps/developer."
-                href="/changelog"
-              />
-              <Tile
-                title="SDK + UI packages (WIP)"
-                body="Shared packages scaffolded for iterative growth."
-                href="/sdks"
-              />
-              <Tile
-                title="Next: real API surface"
-                body="Define endpoints, auth, and versioning strategy."
-                href="/docs"
-              />
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="footer">

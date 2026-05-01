@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: Open Estate Sales API
+  version: 0.1.0
+  description: |
+    Public read APIs for published sales, and operator-only write APIs via OAuth.
+
+servers:
+  - url: https://api.openestatesales.com
+    description: Production (planned)
+  - url: http://localhost:3002
+    description: Local dev (apps/api)
+
+tags:
+  - name: Sales
+  - name: OperatorOAuth
+
+paths:
+  /v1/sales:
+    get:
+      tags: [Sales]
+      summary: List published sales (public)
+      description: |
+        Read-only endpoint for independent developers to fetch all published sales and parse metadata.
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 1000, default: 100 }
+          description: Max items returned.
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+          description: Pagination offset.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, sales]
+                properties:
+                  ok: { type: boolean, enum: [true] }
+                  sales:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PublicSale"
+
+  /v1/operator/sales:
+    post:
+      tags: [Sales, OperatorOAuth]
+      summary: Create a sale (operator OAuth)
+      description: |
+        Operator-only. Requires OAuth access token for the operator; independent developer API keys cannot create sales.
+      security:
+        - OperatorOAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSaleRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, sale]
+                properties:
+                  ok: { type: boolean, enum: [true] }
+                  sale:
+                    $ref: "#/components/schemas/OperatorSale"
+        "401":
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    OperatorOAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth access token for an operator account.
+
+  schemas:
+    PublicSale:
+      type: object
+      required:
+        - id
+        - title
+        - city
+        - state
+        - start_date
+        - end_date
+        - region_slug
+        - listing_slug
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        city: { type: string }
+        state: { type: string }
+        start_date: { type: string, example: "2026-05-10" }
+        end_date: { type: string, example: "2026-05-12" }
+        region_slug: { type: string, example: "atlanta-ga" }
+        listing_slug: { type: string, example: "smith-family-estate-2026" }
+        published_at: { type: string, nullable: true }
+
+    CreateSaleRequest:
+      type: object
+      required: [title, city, state, start_date, end_date]
+      properties:
+        title: { type: string }
+        city: { type: string }
+        state: { type: string, minLength: 2, maxLength: 2 }
+        start_date: { type: string, example: "2026-05-10" }
+        end_date: { type: string, example: "2026-05-12" }
+        description: { type: string, nullable: true }
+
+    OperatorSale:
+      allOf:
+        - $ref: "#/components/schemas/PublicSale"
+        - type: object
+          properties:
+            status: { type: string, example: "draft" }
+

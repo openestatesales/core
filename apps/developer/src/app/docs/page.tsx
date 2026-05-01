@@ -1,25 +1,5 @@
 import Link from "next/link";
 
-function DocLink({
-  href,
-  title,
-  body,
-}: {
-  href: string;
-  title: string;
-  body: string;
-}) {
-  return (
-    <Link className="tile" href={href}>
-      <h3 className="tileTitle">
-        <span>{title}</span>
-        <span style={{ opacity: 0.75 }}>→</span>
-      </h3>
-      <p className="tileBody">{body}</p>
-    </Link>
-  );
-}
-
 export default function DocsHomePage() {
   return (
     <div>
@@ -32,22 +12,71 @@ export default function DocsHomePage() {
         sales is operator-only and requires OAuth.
       </p>
 
-      <div className="tiles" style={{ marginTop: 16 }}>
-        <DocLink
-          href="/docs/sales"
-          title="Fetch all sales (public)"
-          body="List published sales across regions and parse metadata for discovery and analytics."
-        />
-        <DocLink
-          href="/docs/post-sale"
-          title="Post a sale (operator OAuth)"
-          body="Create a sale programmatically for the signed-in operator (write access)."
-        />
-        <DocLink
-          href="/docs/operator-oauth"
-          title="Operator OAuth"
-          body="How operator authentication and authorization works for write endpoints."
-        />
+      <div style={{ display: "grid", gap: 12, marginTop: 18 }}>
+        <details
+          open
+          className="tile"
+          style={{ cursor: "default" }}
+        >
+          <summary
+            className="tileTitle"
+            style={{ cursor: "pointer", listStyle: "none" }}
+          >
+            <span>API Reference (OpenAPI)</span>
+            <span style={{ opacity: 0.75 }}>↓</span>
+          </summary>
+          <p className="tileBody" style={{ marginTop: 10 }}>
+            Searchable reference UI powered by Redoc.
+          </p>
+          <div className="ctaRow" style={{ marginTop: 12 }}>
+            <Link className="btn btnPrimary" href="/docs/api-reference">
+              Open API Reference →
+            </Link>
+            <a className="btn" href="/openapi.yaml">
+              Download openapi.yaml →
+            </a>
+          </div>
+        </details>
+
+        <details className="tile" style={{ cursor: "default" }}>
+          <summary
+            className="tileTitle"
+            style={{ cursor: "pointer", listStyle: "none" }}
+          >
+            <span>Public reads (independent developers)</span>
+            <span style={{ opacity: 0.75 }}>↓</span>
+          </summary>
+          <p className="tileBody" style={{ marginTop: 10 }}>
+            Fetch all published sales and parse metadata across regions. No auth.
+          </p>
+          <div className="ctaRow" style={{ marginTop: 12 }}>
+            <Link className="btn btnPrimary" href="/docs/sales">
+              Fetch all sales →
+            </Link>
+          </div>
+        </details>
+
+        <details className="tile" style={{ cursor: "default" }}>
+          <summary
+            className="tileTitle"
+            style={{ cursor: "pointer", listStyle: "none" }}
+          >
+            <span>Write access (operators only)</span>
+            <span style={{ opacity: 0.75 }}>↓</span>
+          </summary>
+          <p className="tileBody" style={{ marginTop: 10 }}>
+            Creating/updating/publishing sales requires operator OAuth. Independent
+            developer API keys cannot post sales.
+          </p>
+          <div className="ctaRow" style={{ marginTop: 12 }}>
+            <Link className="btn btnPrimary" href="/docs/operator-oauth">
+              Operator OAuth →
+            </Link>
+            <Link className="btn" href="/docs/post-sale">
+              Post a sale (contract) →
+            </Link>
+          </div>
+        </details>
       </div>
     </div>
   );
