@@ -43,10 +43,8 @@ function Tile({
 }
 
 export function Landing({
-  sdkBaseUrl,
   children,
 }: {
-  sdkBaseUrl: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -77,10 +75,10 @@ export function Landing({
             </Link>
 
             <nav className="nav" aria-label="Primary">
-              <a href="#docs">Docs</a>
-              <a href="#sdks">SDKs & APIs</a>
-              <a href="#community">Support</a>
-              <a href="#changelog">Changelog</a>
+              <Link href="/docs">Docs</Link>
+              <Link href="/sdks">SDKs & APIs</Link>
+              <Link href="/support">Support</Link>
+              <Link href="/changelog">Changelog</Link>
             </nav>
 
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -99,22 +97,22 @@ export function Landing({
               <div>
                 <p className="kicker">APIs & SDKs</p>
                 <h1 className="h1">
-                  Build with <span className="accent">open</span> listings,{" "}
-                  seller tools, and local discovery.
+                  Build with <span className="accent">open</span> listings and{" "}
+                  operator-first tools.
                 </h1>
                 <p className="lede">
-                  We’re building an open platform for estate sales: listings,
-                  regions, locations, and the tools to help communities share
-                  and find sales without lock-in.
+                  Two lanes to start: OAuth for operators to manage their own
+                  sales, and public discovery APIs for independent developers to
+                  parse listings and metadata across regions.
                 </p>
 
                 <div className="ctaRow" id="docs">
-                  <a className="btn btnPrimary" href="#sdks">
+                  <Link className="btn btnPrimary" href="/docs">
                     Start building <ArrowRight />
-                  </a>
-                  <a className="btn" href="#changelog">
+                  </Link>
+                  <Link className="btn" href="/changelog">
                     View updates <ArrowRight />
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -124,38 +122,38 @@ export function Landing({
         <section className="section">
           <div className="container">
             <p className="kicker">Explore</p>
-            <h2 className="h2">Pick a surface area to build on</h2>
+            <h2 className="h2">Start with these first use cases</h2>
 
             <div className="tiles">
               <Tile
-                title="Discover listings"
-                body="Search by region, map, and filters to help buyers find sales."
-                href="#"
+                title="Operator OAuth (read + write your sales)"
+                body="Operators authenticate with OAuth to create, update, publish, and manage only their own sales."
+                href="/docs/operator-oauth"
               />
               <Tile
-                title="Operator tools"
-                body="Create, manage, and publish sales with location-aware workflows."
-                href="#"
+                title="Independent developer (read all public sales)"
+                body="Parse all published sales and metadata across regions for analytics, search, and discovery."
+                href="/docs/sales"
               />
               <Tile
-                title="Content + guides"
-                body="Docs, examples, and recipes for integrating with OES."
-                href="#"
+                title="Metadata + normalization"
+                body="Work with regions, listing slugs, sale dates, and derived fields to build reliable pipelines."
+                href="/docs/sales"
               />
               <Tile
                 title="Webhooks (soon)"
-                body="Event-driven updates for sales changes and publishing."
-                href="#"
+                body="Event-driven updates when a sale is created, updated, or published."
+                href="/changelog"
               />
               <Tile
                 title="SDKs (WIP)"
                 body="Typed client helpers and shared primitives in packages/sdk."
-                href="#"
+                href="/sdks"
               />
               <Tile
                 title="Status + changelog"
                 body="What shipped, what’s next, and how to track platform changes."
-                href="#changelog"
+                href="/changelog"
               />
             </div>
 
@@ -165,7 +163,7 @@ export function Landing({
           </div>
         </section>
 
-        <section className="section" id="community">
+        <section className="section">
           <div className="container">
             <p className="kicker">Community</p>
             <h2 className="h2">Help us shape the platform</h2>
@@ -187,7 +185,7 @@ export function Landing({
           </div>
         </section>
 
-        <section className="section" id="changelog">
+        <section className="section">
           <div className="container">
             <p className="kicker">Changelog</p>
             <h2 className="h2">Shipping in public</h2>
@@ -195,17 +193,17 @@ export function Landing({
               <Tile
                 title="Monorepo + developer app"
                 body="TurboRepo setup with apps/web and apps/developer."
-                href="#"
+                href="/changelog"
               />
               <Tile
                 title="SDK + UI packages (WIP)"
                 body="Shared packages scaffolded for iterative growth."
-                href="#"
+                href="/sdks"
               />
               <Tile
                 title="Next: real API surface"
                 body="Define endpoints, auth, and versioning strategy."
-                href="#"
+                href="/docs"
               />
             </div>
           </div>
