@@ -80,10 +80,13 @@ function statusLabel(status: string): string {
 
 type Props = {
   sales: DashboardSaleRow[];
+  /** When true, show a link to edit operator profile (/dashboard/profile). */
+  showOperatorProfileLink?: boolean;
 };
 
 export function OperatorDashboardHub({
   sales,
+  showOperatorProfileLink = false,
 }: Props) {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -114,13 +117,26 @@ export function OperatorDashboardHub({
             </p>
           </div>
 
-          {sales.length > 0 ? (
-            <CreateDraftSaleButton
-              size="sm"
-              label="New sale"
-              className="rounded-lg px-4"
-            />
-          ) : null}
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            {showOperatorProfileLink ? (
+              <Link
+                href="/dashboard/profile"
+                className={cn(
+                  buttonVariants({ size: "sm", variant: "outline" }),
+                  "rounded-lg",
+                )}
+              >
+                Profile
+              </Link>
+            ) : null}
+            {sales.length > 0 ? (
+              <CreateDraftSaleButton
+                size="sm"
+                label="New sale"
+                className="rounded-lg px-4"
+              />
+            ) : null}
+          </div>
         </header>
 
         {/* Search + status */}
