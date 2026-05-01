@@ -11,7 +11,7 @@ export type ApiEnv = z.infer<typeof envSchema>;
 export function getEnv(): ApiEnv {
   const parsed = envSchema.safeParse({
     PORT: process.env.PORT,
-    SUPABASE_URL: process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL,
+    SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   });
   if (!parsed.success) {
