@@ -1,37 +1,71 @@
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
+
+type CookieToSet = { name: string; value: string; options: CookieOptions };
+
 import { githubUsernameFromUser } from "@/lib/github-metadata";
-import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+/**
+ * OAuth callback must use a Supabase client whose `setAll` writes to the
+ * **redirect response** (`response.cookies`). Using `createClient()` from
+ * `server.ts` + `cookies()` from `next/headers` often fails to persist the
+ * session from `exchangeCodeForSession` in Route Handlers — users land
+ * unauthenticated and `register_developer` never sees `auth.uid()`.
+ */
+export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get("code");
+  const nextRaw = requestUrl.searchParams.get("next") ?? "/";
+  const safeNext =
+    nextRaw.startsWith("/") && !nextRaw.startsWith("//") ? nextRaw : "/";
+  const origin = requestUrl.origin;
 
-  if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        const gh = githubUsernameFromUser(user);
-        const { error: devError } = await supabase.rpc("register_developer", {
-          p_github_username: gh,
+  if (!code) {
+    return NextResponse.redirect(`${origin}/login?error=auth`);
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.redirect(`${origin}/login?error=auth`);
+  }
+
+  let response = NextResponse.redirect(`${origin}${safeNext}`);
+
+  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet: CookieToSet[]) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
         });
-        if (devError) {
-          console.error(
-            "[auth/callback] register_developer:",
-            devError.message,
-          );
-        }
-      }
+      },
+    },
+  });
 
-      const path = next.startsWith("/") ? next : "/";
-      return NextResponse.redirect(`${origin}${path}`);
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    return NextResponse.redirect(
+      `${origin}/login?error=auth&reason=${encodeURIComponent(error.message)}`,
+    );
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const gh = githubUsernameFromUser(user);
+    const { error: devError } = await supabase.rpc("register_developer", {
+      p_github_username: gh,
+    });
+    if (devError) {
+      console.error("[auth/callback] register_developer:", devError.message);
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  return response;
 }
-

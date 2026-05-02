@@ -42,14 +42,25 @@ const INTEGRATION_IDEAS = [
   },
 ] as const;
 
+/** After GitHub OAuth, send developers to the dashboard unless `?next=` is set. */
+function safeNextPath(raw: string | null): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
+    return "/dashboard/keys";
+  }
+  return raw;
+}
+
 function LoginInner() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const reason = searchParams.get("reason");
+  const nextPath = safeNextPath(searchParams.get("next"));
 
   const redirectTo = useMemo(() => {
     if (typeof window === "undefined") return "";
-    return `${window.location.origin}/auth/callback?next=/`;
-  }, []);
+    const q = new URLSearchParams({ next: nextPath });
+    return `${window.location.origin}/auth/callback?${q.toString()}`;
+  }, [nextPath]);
 
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -96,7 +107,9 @@ function LoginInner() {
 
           {(error || localError) && (
             <div className="loginSplitError" role="alert">
-              {localError ?? "Authentication failed. Please try again."}
+              {localError ??
+                reason ??
+                "Authentication failed. Please try again."}
             </div>
           )}
 
