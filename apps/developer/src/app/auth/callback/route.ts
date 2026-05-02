@@ -15,7 +15,11 @@ import { githubUsernameFromUser } from "@/lib/github-metadata";
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const nextRaw = requestUrl.searchParams.get("next") ?? "/";
+  const nextFromCookie = request.cookies.get("oes_dev_next")?.value ?? null;
+  const nextRaw =
+    requestUrl.searchParams.get("next") ??
+    (nextFromCookie ? decodeURIComponent(nextFromCookie) : null) ??
+    "/dashboard/keys";
   const safeNext =
     nextRaw.startsWith("/") && !nextRaw.startsWith("//") ? nextRaw : "/";
   const origin = requestUrl.origin;
@@ -31,6 +35,11 @@ export async function GET(request: NextRequest) {
   }
 
   let response = NextResponse.redirect(`${origin}${safeNext}`);
+  // Clear one-time next cookie
+  response.cookies.set("oes_dev_next", "", {
+    path: "/",
+    expires: new Date(0),
+  });
 
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {

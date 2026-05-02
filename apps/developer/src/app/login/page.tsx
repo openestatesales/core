@@ -58,9 +58,10 @@ function LoginInner() {
 
   const redirectTo = useMemo(() => {
     if (typeof window === "undefined") return "";
-    const q = new URLSearchParams({ next: nextPath });
-    return `${window.location.origin}/auth/callback?${q.toString()}`;
-  }, [nextPath]);
+    // IMPORTANT: Supabase redirect URL allow-lists are exact. Keep this URL stable
+    // (no query params) and store the intended destination in a cookie.
+    return `${window.location.origin}/auth/callback`;
+  }, []);
 
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -77,6 +78,9 @@ function LoginInner() {
       setBusy(false);
       return;
     }
+
+    // Persist next path for the callback (PKCE redirect URL must stay stable).
+    document.cookie = `oes_dev_next=${encodeURIComponent(nextPath)}; Path=/; SameSite=Lax`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
