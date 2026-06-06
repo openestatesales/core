@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const REPO = "https://github.com/openestatesales/core";
+const DISCORD = "https://discord.gg/M6v4Sn9fnV";
 const DEV_PORTAL_PROD = "https://developer.openestatesales.com";
 
 function developerPortalUrl() {
@@ -96,12 +97,15 @@ export function Footer({ className }: FooterProps) {
                 >
                   <XIcon className="size-5" />
                 </span>
-                <span
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground opacity-50"
-                  title="Coming soon"
+                <a
+                  href={DISCORD}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-accent/40 hover:text-accent"
+                  aria-label="Discord community"
                 >
                   <DiscordIcon className="size-5" />
-                </span>
+                </a>
                 <a
                   href={REPO}
                   target="_blank"
