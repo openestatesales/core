@@ -86,20 +86,20 @@ function OperatorBenefitsAside({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "relative flex min-h-0 min-w-0 flex-col justify-center overflow-hidden border-t border-white/10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-accent/25 lg:border-t-0",
+        "relative flex min-h-0 min-w-0 flex-col justify-center overflow-hidden border-t border-white/10 bg-gradient-to-br from-stone-900 via-stone-900 to-[oklch(0.35_0.08_58)] lg:border-t-0",
         className,
       )}
       aria-label="Why operators use Open Estate Sales"
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_480px_at_18%_12%,oklch(0.45_0.12_238/0.4),transparent_55%),radial-gradient(700px_420px_at_92%_88%,oklch(0.35_0.1_258/0.28),transparent_50%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_480px_at_18%_12%,oklch(0.45_0.12_58/0.35),transparent_55%),radial-gradient(700px_420px_at_92%_88%,oklch(0.55_0.1_68/0.22),transparent_50%)]"
         aria-hidden
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/35" aria-hidden />
       <div className={cn("relative z-10", SPLIT_INNER)}>
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-400/40 bg-sky-500/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-sky-100 shadow-[0_0_24px_oklch(0.55_0.14_238/0.28)]">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-50 shadow-[0_0_24px_oklch(0.55_0.14_58/0.28)]">
           <span
-            className="size-2 shrink-0 rounded-full bg-sky-400 shadow-[0_0_0_3px_oklch(0.62_0.14_238/0.4)]"
+            className="size-2 shrink-0 rounded-full bg-amber-400 shadow-[0_0_0_3px_oklch(0.62_0.14_58/0.4)]"
             aria-hidden
           />
           Free forever — for operators
@@ -117,7 +117,7 @@ function OperatorBenefitsAside({ className }: { className?: string }) {
               key={title}
               className="rounded-2xl border border-white/12 bg-white/[0.06] p-4 backdrop-blur-sm"
             >
-              <div className="flex size-9 items-center justify-center rounded-xl border border-sky-400/30 bg-sky-500/15 text-sky-200">
+              <div className="flex size-9 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-500/15 text-amber-100">
                 <Icon className="size-4" strokeWidth={2} aria-hidden />
               </div>
               <h3 className="mt-3 text-sm font-semibold text-white">{title}</h3>

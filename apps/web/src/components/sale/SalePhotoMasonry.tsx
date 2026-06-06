@@ -25,17 +25,12 @@ export function SalePhotoMasonry({ title, photos, className }: Props) {
   if (items.length === 0) return null;
 
   return (
-    <div
-      className={cn(
-        "columns-2 gap-3 sm:columns-3 sm:gap-4 lg:columns-3",
-        className,
-      )}
-    >
+    <div className={cn("columns-2 gap-3 sm:columns-3 sm:gap-4", className)}>
       {items.map(({ photo, src, index, tall }) => (
         <div
           key={photo.id}
           className={cn(
-            "mb-3 break-inside-avoid overflow-hidden rounded-xl border border-stone-200 bg-stone-100 sm:mb-4",
+            "mb-3 break-inside-avoid overflow-hidden rounded-xl border border-border bg-muted sm:mb-4",
             tall ? "aspect-[3/4]" : "aspect-[4/3]",
           )}
         >

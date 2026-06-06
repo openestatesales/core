@@ -28,7 +28,7 @@ export function SaleContactRunner({
     return (
       <div
         className={cn(
-          "rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900",
+          "rounded-2xl border border-border bg-card p-5 shadow-sm",
           className,
         )}
       >
@@ -68,7 +68,7 @@ export function SaleContactRunner({
       )}
     >
       <div className="flex items-start gap-2">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-accent">
           <Mail className="size-4" aria-hidden />
         </div>
         <div>
@@ -95,7 +95,7 @@ export function SaleContactRunner({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email"
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 dark:border-zinc-800 dark:bg-zinc-950/50"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-ring/25"
           />
         </div>
         <div>
@@ -109,7 +109,7 @@ export function SaleContactRunner({
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Phone (optional)"
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 dark:border-zinc-800 dark:bg-zinc-950/50"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-ring/25"
           />
         </div>
         <div>
@@ -122,7 +122,7 @@ export function SaleContactRunner({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Your message…"
-            className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 dark:border-zinc-800 dark:bg-zinc-950/50"
+            className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-ring/25"
           />
         </div>
         <Button

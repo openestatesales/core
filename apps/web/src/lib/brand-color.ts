@@ -1,4 +1,5 @@
 /** Sync with `--brand` in `app/globals.css` (Google Maps / canvas APIs). */
-export const BRAND_HEX = "#4c8ee5";
+export const BRAND_HEX = "#B45309";
 
-/** If you switch the theme to sage green in `globals.css`, use e.g. `#3d9f78`. */
+/** Peach primary CTA — sync with `--primary` in globals.css. */
+export const PRIMARY_HEX = "#FDBA74";

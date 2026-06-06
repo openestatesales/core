@@ -53,7 +53,7 @@ function StageDot({ variant }: { variant: StageVisual["dot"] }) {
         variant === "emerald" &&
           "bg-emerald-500 shadow-[0_0_0_3px_oklch(0.72_0.17_160/0.35)]",
         variant === "brand" &&
-          "bg-[var(--brand)] shadow-[0_0_0_3px_oklch(0.65_0.12_238/0.28)]",
+          "bg-[var(--brand)] shadow-[0_0_0_3px_oklch(0.65_0.12_58/0.28)]",
       )}
       aria-hidden
     />
@@ -69,9 +69,9 @@ export function DevelopmentStageBanner() {
       role="status"
       aria-label={`Product stage: ${stage}`}
       className={cn(
-        "border-b border-[oklch(0.62_0.11_238/0.28)]",
-        "bg-[linear-gradient(90deg,oklch(0.55_0.12_238/0.12),oklch(0.5_0.1_238/0.05),oklch(0.55_0.12_238/0.12))]",
-        "dark:bg-[linear-gradient(90deg,oklch(0.55_0.12_238/0.14),oklch(0.5_0.1_238/0.06),oklch(0.55_0.12_238/0.14))]",
+        "border-b border-[oklch(0.62_0.11_58/0.28)]",
+        "bg-[linear-gradient(90deg,oklch(0.55_0.12_58/0.12),oklch(0.5_0.1_68/0.05),oklch(0.55_0.12_58/0.12))]",
+        "dark:bg-[linear-gradient(90deg,oklch(0.55_0.12_58/0.14),oklch(0.5_0.1_68/0.06),oklch(0.55_0.12_58/0.14))]",
       )}
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 text-xs sm:px-6">

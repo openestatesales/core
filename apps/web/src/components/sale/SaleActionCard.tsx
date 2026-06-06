@@ -90,32 +90,32 @@ export function SaleActionCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-stone-200 bg-white p-5 shadow-sm",
+        "rounded-2xl border border-border bg-card p-5 shadow-sm",
         className,
       )}
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+      <p className="text-xs font-semibold uppercase tracking-wide text-accent">
         Estate sale
       </p>
-      <p className="mt-1 line-clamp-2 text-base font-semibold text-stone-900">
+      <p className="mt-1 line-clamp-2 text-base font-semibold text-foreground">
         {title}
       </p>
 
-      <div className="mt-4 space-y-3 text-sm text-stone-700">
+      <div className="mt-4 space-y-3 text-sm text-foreground/85">
         <div className="flex gap-2">
-          <CalendarRange className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden />
+          <CalendarRange className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
           <span>{dateRange}</span>
         </div>
 
         {previewTimes?.trim() ? (
           <div className="flex gap-2">
-            <Clock className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden />
+            <Clock className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
             <span className="whitespace-pre-line">{previewTimes.trim()}</span>
           </div>
         ) : null}
 
         <div className="flex gap-2">
-          <MapPin className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden />
+          <MapPin className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
           <span>
             {city}, {state}
             {zip ? ` ${zip}` : ""}
@@ -123,11 +123,11 @@ export function SaleActionCard({
         </div>
 
         {!ended ? (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-relaxed text-stone-600">
+          <p className="rounded-xl bg-muted px-3 py-2.5 text-xs leading-relaxed text-accent-foreground">
             {addressLine}
           </p>
         ) : (
-          <p className="text-xs font-medium text-stone-500">This sale has ended.</p>
+          <p className="text-xs font-medium text-muted-foreground">This sale has ended.</p>
         )}
       </div>
 
@@ -137,7 +137,7 @@ export function SaleActionCard({
             type="button"
             disabled
             title="Email alerts coming soon"
-            className="h-10 w-full rounded-xl bg-amber-600/80 text-white opacity-90"
+            className="h-10 w-full rounded-xl"
           >
             <Bell className="size-4" aria-hidden />
             Get address alert
@@ -150,8 +150,8 @@ export function SaleActionCard({
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-              buttonVariants({ variant: "outline" }),
-              "h-10 w-full rounded-xl border-stone-200 bg-stone-50 text-stone-800 hover:bg-stone-100",
+              buttonVariants({ variant: "secondary" }),
+              "h-10 w-full rounded-xl border-border",
             )}
           >
             <Navigation className="size-4" aria-hidden />
@@ -161,24 +161,21 @@ export function SaleActionCard({
 
         <Button
           type="button"
-          variant="outline"
+          variant="secondary"
           className={cn(
-            "h-10 w-full rounded-xl border-stone-200",
+            "h-10 w-full rounded-xl border-border",
             saved && "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100",
           )}
           onClick={toggleSave}
         >
-          <Heart
-            className={cn("size-4", saved && "fill-current")}
-            aria-hidden
-          />
+          <Heart className={cn("size-4", saved && "fill-current")} aria-hidden />
           {saved ? "Saved" : "Save sale"}
         </Button>
 
         <Button
           type="button"
-          variant="outline"
-          className="h-10 w-full rounded-xl border-stone-200"
+          variant="secondary"
+          className="h-10 w-full rounded-xl border-border"
           onClick={onContact}
         >
           Contact host

@@ -169,11 +169,11 @@ export default async function SaleDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-100">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
         <Link
           href="/"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-stone-600 transition hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition hover:text-foreground"
         >
           <ArrowLeft className="size-4" aria-hidden />
           All sales
@@ -183,7 +183,7 @@ export default async function SaleDetailPage({ params }: Props) {
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px] lg:gap-10 xl:grid-cols-[1fr_360px]">
           <div className="min-w-0 space-y-8">
-            <header className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+            <header className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
               {ended ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800">
                   <AlertCircle className="size-3.5" aria-hidden />
@@ -192,19 +192,19 @@ export default async function SaleDetailPage({ params }: Props) {
               ) : null}
 
               <div>
-                <h1 className="text-2xl font-bold leading-snug text-stone-900 sm:text-3xl dark:text-stone-50">
+                <h1 className="text-2xl font-bold leading-snug text-foreground sm:text-3xl">
                   {sale.title}
                 </h1>
                 {photoCount > 0 && categories.length > 0 ? (
-                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
-                    <Camera className="mr-1 inline size-3.5 text-amber-600" aria-hidden />
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <Camera className="mr-1 inline size-3.5 text-accent" aria-hidden />
                     {photoCount} {photoCount === 1 ? "photo" : "photos"}
                     {" · "}
                     {categories.slice(0, 3).join(" · ")}
                   </p>
                 ) : photoCount > 0 ? (
-                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
-                    <Camera className="mr-1 inline size-3.5 text-amber-600" aria-hidden />
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <Camera className="mr-1 inline size-3.5 text-accent" aria-hidden />
                     {photoCount} {photoCount === 1 ? "photo" : "photos"}
                   </p>
                 ) : null}
@@ -212,19 +212,19 @@ export default async function SaleDetailPage({ params }: Props) {
 
               <SaleHostTrust operator={sale.operator ?? undefined} viewCount={sale.view_count} />
 
-              <div className="flex flex-col gap-2 text-sm text-stone-700 dark:text-stone-300 sm:flex-row sm:flex-wrap sm:gap-x-5">
+              <div className="flex flex-col gap-2 text-sm text-foreground/85 sm:flex-row sm:flex-wrap sm:gap-x-5">
                 <span className="inline-flex items-center gap-2">
-                  <MapPin className="size-4 shrink-0 text-amber-600" aria-hidden />
+                  <MapPin className="size-4 shrink-0 text-accent" aria-hidden />
                   {sale.city}, {sale.state}
                   {sale.zip ? ` ${sale.zip}` : ""}
                 </span>
                 <span className="inline-flex items-center gap-2">
-                  <CalendarRange className="size-4 shrink-0 text-amber-600" aria-hidden />
+                  <CalendarRange className="size-4 shrink-0 text-accent" aria-hidden />
                   {dateRange}
                 </span>
                 {sale.preview_times?.trim() ? (
                   <span className="inline-flex items-center gap-2">
-                    <Clock className="size-4 shrink-0 text-amber-600" aria-hidden />
+                    <Clock className="size-4 shrink-0 text-accent" aria-hidden />
                     {sale.preview_times.trim()}
                   </span>
                 ) : null}
@@ -247,7 +247,7 @@ export default async function SaleDetailPage({ params }: Props) {
               <section aria-labelledby="photo-gallery-heading">
                 <h2
                   id="photo-gallery-heading"
-                  className="mb-4 text-lg font-semibold text-stone-900 dark:text-stone-50"
+                  className="mb-4 text-lg font-semibold text-foreground"
                 >
                   Photo gallery
                 </h2>
@@ -258,40 +258,40 @@ export default async function SaleDetailPage({ params }: Props) {
             {sale.description?.trim() ? (
               <section
                 aria-labelledby="sale-about-heading"
-                className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900"
+                className="rounded-2xl border border-border bg-card p-5 shadow-sm"
               >
                 <h2
                   id="sale-about-heading"
-                  className="mb-3 text-lg font-semibold text-stone-900 dark:text-stone-50"
+                  className="mb-3 text-lg font-semibold text-foreground"
                 >
                   About this estate sale
                 </h2>
                 {aboutIntro ? (
-                  <p className="mb-4 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+                  <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
                     {aboutIntro}
                   </p>
                 ) : null}
-                <div className="prose prose-stone dark:prose-invert max-w-none prose-p:leading-relaxed">
+                <div className="prose prose-stone max-w-none prose-p:leading-relaxed dark:prose-invert">
                   <SaleDescriptionHtml html={sale.description} />
                 </div>
               </section>
             ) : null}
 
             {hasMapPin ? (
-              <details className="group rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-semibold text-stone-900 marker:content-none dark:text-stone-50">
+              <details className="group rounded-2xl border border-border bg-card shadow-sm">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-semibold text-foreground marker:content-none">
                   <span className="inline-flex items-center gap-2">
-                    <MapPin className="size-4 text-amber-600" aria-hidden />
+                    <MapPin className="size-4 text-accent" aria-hidden />
                     Map & directions
                   </span>
                   <ChevronDown
-                    className="size-4 text-stone-500 transition group-open:rotate-180"
+                    className="size-4 text-muted-foreground transition group-open:rotate-180"
                     aria-hidden
                   />
                 </summary>
-                <div className="border-t border-stone-100 px-4 pb-4 pt-2 dark:border-stone-800">
+                <div className="border-t border-border px-4 pb-4 pt-2">
                   {!addressIsExact ? (
-                    <p className="mb-2 text-xs text-stone-500">
+                    <p className="mb-2 text-xs text-muted-foreground">
                       Approximate area until the exact address is released.
                     </p>
                   ) : null}

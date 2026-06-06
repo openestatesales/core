@@ -37,8 +37,8 @@ export function SaleHostTrust({ operator, viewCount }: HostProps) {
   const isCompany = operator.operator_kind === "company";
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-sm">
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-amber-50 text-amber-700 ring-1 ring-amber-100">
+    <div className="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-accent ring-1 ring-border">
         {operator.company_logo_url ? (
           <Image
             src={operator.company_logo_url}
@@ -54,17 +54,17 @@ export function SaleHostTrust({ operator, viewCount }: HostProps) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm text-stone-600">
+        <p className="text-sm text-muted-foreground">
           Hosted by{" "}
-          <span className="font-semibold text-stone-900">{label}</span>
+          <span className="font-semibold text-foreground">{label}</span>
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-stone-500">
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {isCompany ? (
-            <span className="rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-800 ring-1 ring-amber-100">
+            <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-accent-foreground ring-1 ring-border">
               Professional company
             </span>
           ) : (
-            <span className="rounded-full bg-stone-100 px-2 py-0.5 font-medium text-stone-600">
+            <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-muted-foreground">
               Independent host
             </span>
           )}
@@ -85,7 +85,7 @@ export function SaleCategoryChips({ categories }: { categories: string[] }) {
       {categories.map((category) => (
         <span
           key={category}
-          className="rounded-full border border-stone-200 bg-amber-50/80 px-3 py-1 text-xs font-medium text-stone-700"
+          className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-foreground/85"
         >
           {category}
         </span>
@@ -101,16 +101,16 @@ export function SaleFeaturedFinds({ items }: { items: string[] }) {
     <section aria-labelledby="featured-finds-heading">
       <h2
         id="featured-finds-heading"
-        className="mb-4 flex items-center gap-2 text-lg font-semibold text-stone-900"
+        className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground"
       >
-        <Sparkles className="size-5 text-amber-600" aria-hidden />
+        <Sparkles className="size-5 text-accent" aria-hidden />
         Featured finds
       </h2>
       <ul className="grid gap-2 sm:grid-cols-2">
         {items.map((item) => (
           <li
             key={item}
-            className="rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-700 shadow-sm"
+            className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground/90 shadow-sm"
           >
             {item}
           </li>
@@ -145,7 +145,6 @@ export function SaleStickyActions({
           saleTitle={action.title}
           runnerLabel={runnerLabel}
           contactEmail={contactEmail}
-          className="border-stone-200 bg-white"
         />
       </div>
     </div>
