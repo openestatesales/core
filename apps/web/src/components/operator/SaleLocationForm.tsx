@@ -18,7 +18,21 @@ import {
 import { cn } from "@/lib/utils";
 import { loadGoogleMaps } from "@/utils/googleMaps";
 import { useMutation } from "@tanstack/react-query";
-import { AlertCircle, Clock, Loader2, MapPin } from "lucide-react";
+import {
+  AlertCircle,
+  Building2,
+  CheckCircle2,
+  Clock,
+  EyeOff,
+  Landmark,
+  Loader2,
+  MapPin,
+  Package,
+  Phone,
+  Tag,
+  Warehouse,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -34,6 +48,38 @@ function datetimeLocalToIso(value: string): string {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return new Date().toISOString();
   return d.toISOString();
+}
+
+function getRevealCountdown(datetimeLocal: string): string | null {
+  if (!datetimeLocal) return null;
+  const d = new Date(datetimeLocal);
+  if (Number.isNaN(d.getTime())) return null;
+  const diff = d.getTime() - Date.now();
+  if (diff <= 0) return "Address is live now";
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  if (days > 0) return `Buyers see the exact address in ${days}d ${hours}h`;
+  if (hours > 0) return `Buyers see the exact address in ${hours}h`;
+  const mins = Math.floor((diff % 3600000) / 60000);
+  return `Buyers see the exact address in ${mins}m`;
+}
+
+function readTrimmedAddressFromWidget(
+  el: HTMLElement | null,
+  fallback: string,
+): string {
+  if (!el) return fallback.trim();
+  const v = (el as HTMLElement & { value?: string }).value;
+  return typeof v === "string" ? v.trim() : fallback.trim();
+}
+
+type PhoneDisplay = "show_account" | "hidden" | "custom";
+
+function parsePhoneDisplay(raw: string): PhoneDisplay {
+  if (raw === "show_account" || raw === "hidden" || raw === "custom") {
+    return raw;
+  }
+  return "hidden";
 }
 
 type Props = {
@@ -62,22 +108,102 @@ type PlacesLibraryModule = {
   PlaceAutocompleteElement: PlaceAutocompleteConstructor;
 };
 
-function readTrimmedAddressFromWidget(
-  el: HTMLElement | null,
-  fallback: string,
-): string {
-  if (!el) return fallback.trim();
-  const v = (el as HTMLElement & { value?: string }).value;
-  return typeof v === "string" ? v.trim() : fallback.trim();
+const SALE_KIND_ICONS: Record<SaleKindValue, LucideIcon> = {
+  estate_sale: Landmark,
+  moving_sale: Package,
+  warehouse_estate_sale: Warehouse,
+  business_closing: Building2,
+};
+
+function SectionCard({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-accent/60 via-accent to-accent/60" />
+
+      <div className="p-6">
+        <div className="mb-6 flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent ring-1 ring-accent/20">
+            {icon}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-semibold leading-tight text-foreground">
+              {title}
+            </h2>
+            <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+          </div>
+        </div>
+
+        <div className="space-y-5">{children}</div>
+      </div>
+    </div>
+  );
 }
 
-type PhoneDisplay = "show_account" | "hidden" | "custom";
+function FieldLabel({
+  htmlFor,
+  children,
+}: {
+  htmlFor?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="mb-1.5 block text-sm font-medium text-foreground"
+    >
+      {children}
+    </label>
+  );
+}
 
-function parsePhoneDisplay(raw: string): PhoneDisplay {
-  if (raw === "show_account" || raw === "hidden" || raw === "custom") {
-    return raw;
-  }
-  return "hidden";
+function PhoneOptionCard({
+  label,
+  sublabel,
+  checked,
+  onChange,
+}: {
+  label: string;
+  sublabel: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <label
+      className={cn(
+        "flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-all duration-150",
+        checked
+          ? "border-accent bg-accent/[0.06] shadow-sm"
+          : "border-border bg-transparent hover:border-accent/40 hover:bg-accent/[0.03]",
+      )}
+    >
+      <input
+        type="radio"
+        name="phone-display"
+        checked={checked}
+        onChange={onChange}
+        className="mt-0.5 accent-accent"
+      />
+      <div>
+        <p className="text-sm font-medium leading-tight text-foreground">
+          {label}
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{sublabel}</p>
+      </div>
+      {checked ? (
+        <CheckCircle2 className="ml-auto mt-0.5 h-4 w-4 shrink-0 text-accent" />
+      ) : null}
+    </label>
+  );
 }
 
 export default function SaleLocationForm({ saleId, initial }: Props) {
@@ -125,6 +251,7 @@ export default function SaleLocationForm({ saleId, initial }: Props) {
   const autocompleteRef = useRef<HTMLElement | null>(null);
 
   const currentAddress = (initial.address ?? "").trim();
+  const revealCountdown = getRevealCountdown(availableAt);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -148,7 +275,7 @@ export default function SaleLocationForm({ saleId, initial }: Props) {
 
         const ac = new PlaceAutocompleteElement({
           includedRegionCodes: ["us"],
-          placeholder: "Start typing…",
+          placeholder: "123 Main St — we'll lock the pin automatically",
           name: "address",
         });
         ac.id = "sale-address";
@@ -298,12 +425,12 @@ export default function SaleLocationForm({ saleId, initial }: Props) {
       saleId={saleId}
       draftTitle={initial.title === "Untitled sale" ? "Draft" : initial.title}
       heading="Basics & location"
-      description="Name your sale, choose the type, contact preferences, directions, and the street address buyers will see after reveal."
+      description="Name your sale, set the type, contact preferences, and reveal timing."
     >
-      <div className="mt-8 w-full space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="mx-auto mt-6 w-full max-w-2xl">
         {error ? (
           <div
-            className="flex gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-300"
+            className="mb-5 flex gap-2.5 rounded-xl border border-red-500/30 bg-red-500/8 px-4 py-3 text-sm text-red-700 dark:text-red-300"
             role="alert"
           >
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
@@ -311,158 +438,169 @@ export default function SaleLocationForm({ saleId, initial }: Props) {
           </div>
         ) : null}
 
-        <div className="space-y-2">
-          <label htmlFor="sale-name" className="text-sm font-medium text-foreground">
-            Sale name
-          </label>
-          <Input
-            id="sale-name"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="E.g. Mid-century estate — tools & furniture"
-            autoComplete="off"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="sale-kind" className="text-sm font-medium text-foreground">
-            Type of sale
-          </label>
-          <select
-            id="sale-kind"
-            value={saleKind}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (isSaleKind(v)) setSaleKind(v);
-            }}
-            className={cn(
-              "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none",
-              "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30",
-            )}
+        <div className="space-y-4">
+          <SectionCard
+            icon={<Tag className="h-5 w-5" />}
+            title="Sale identity"
+            description="Give your sale a name and tell buyers what kind of event it is."
           >
-            {SALE_KIND_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <fieldset className="space-y-3">
-          <legend className="text-sm font-medium text-foreground">Phone on listing</legend>
-          <div className="space-y-2">
-            {(
-              [
-                ["show_account", "Show my account phone"],
-                ["hidden", "Don’t show a phone"],
-                ["custom", "Show a custom number"],
-              ] as const
-            ).map(([value, label]) => (
-              <label
-                key={value}
-                className="flex cursor-pointer items-center gap-2 text-sm text-foreground"
-              >
-                <input
-                  type="radio"
-                  name="phone-display"
-                  checked={phoneDisplay === value}
-                  onChange={() => setPhoneDisplay(value)}
-                  className="accent-accent"
-                />
-                {label}
-              </label>
-            ))}
-          </div>
-          {phoneDisplay === "custom" ? (
-            <Input
-              type="tel"
-              value={contactPhoneCustom}
-              onChange={(e) => setContactPhoneCustom(e.target.value)}
-              placeholder="e.g. (404) 555-0100"
-              autoComplete="tel"
-            />
-          ) : null}
-        </fieldset>
-
-        <div className="space-y-2">
-          <label htmlFor="directions-parking" className="text-sm font-medium text-foreground">
-            Directions &amp; parking
-          </label>
-          <textarea
-            id="directions-parking"
-            value={directionsParking}
-            onChange={(e) => setDirectionsParking(e.target.value)}
-            rows={4}
-            placeholder="Parking rules, which entrance to use, neighborhood notes…"
-            className={cn(
-              "w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-2 text-base outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30",
-            )}
-          />
-        </div>
-
-        <div className="flex items-start gap-3 border-t border-border pt-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
-            <MapPin className="h-5 w-5" aria-hidden />
-          </div>
-          <div>
-            <h2 className="font-semibold text-foreground">Address &amp; map pin</h2>
-            <p className="text-sm text-muted-foreground">
-              US addresses only. Pick from Google&apos;s list for accurate geocoding.
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="sale-address" className="text-sm font-medium text-foreground">
-            Street address
-          </label>
-          <div
-            ref={containerRef}
-            className={cn(
-              "sale-location-place-autocomplete min-h-10 w-full",
-              mapsLoading && "pointer-events-none opacity-50",
-            )}
-          />
-          <p className="text-xs text-muted-foreground">
-            {mapsLoading ? "Loading address search…" : "Select a suggestion to lock coordinates."}
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-foreground">Visibility</p>
-          <div className="rounded-xl border border-accent/25 bg-accent/[0.06] p-4 dark:bg-zinc-950/40">
-            <div className="flex items-center gap-2 text-accent">
-              <Clock className="h-5 w-5" aria-hidden />
-              <span className="text-sm font-semibold text-foreground">
-                Scheduled reveal
-              </span>
+            <div>
+              <FieldLabel htmlFor="sale-name">Sale name</FieldLabel>
+              <Input
+                id="sale-name"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Mid-century estate — tools & furniture"
+                autoComplete="off"
+                className="h-11 text-sm"
+              />
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Exact address stays hidden until this time; the map uses a fuzzy pin (~0.5 mi) before
-              then.
-            </p>
-          </div>
+
+            <div>
+              <FieldLabel>Type of sale</FieldLabel>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {SALE_KIND_OPTIONS.map((option) => {
+                  const KindIcon = SALE_KIND_ICONS[option.value];
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSaleKind(option.value)}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-1.5 rounded-xl border px-3 py-3 text-sm font-medium transition-all duration-150",
+                        saleKind === option.value
+                          ? "border-accent bg-accent/10 text-accent shadow-sm ring-1 ring-accent/30"
+                          : "border-border bg-transparent text-muted-foreground hover:border-accent/40 hover:bg-accent/[0.04] hover:text-foreground",
+                      )}
+                    >
+                      <KindIcon className="h-5 w-5" aria-hidden />
+                      <span className="text-center text-xs">{option.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            icon={<Phone className="h-5 w-5" />}
+            title="Contact preferences"
+            description="Choose how buyers can reach you about this sale."
+          >
+            <div className="space-y-2">
+              <PhoneOptionCard
+                label="Show my account phone"
+                sublabel="Displays the number on your profile to interested buyers"
+                checked={phoneDisplay === "show_account"}
+                onChange={() => setPhoneDisplay("show_account")}
+              />
+              <PhoneOptionCard
+                label="Don't show a phone number"
+                sublabel="Buyers contact you through the platform only"
+                checked={phoneDisplay === "hidden"}
+                onChange={() => setPhoneDisplay("hidden")}
+              />
+              <PhoneOptionCard
+                label="Show a custom number"
+                sublabel="Use a different number specific to this sale"
+                checked={phoneDisplay === "custom"}
+                onChange={() => setPhoneDisplay("custom")}
+              />
+            </div>
+
+            {phoneDisplay === "custom" ? (
+              <div>
+                <FieldLabel htmlFor="custom-phone">Custom phone number</FieldLabel>
+                <Input
+                  id="custom-phone"
+                  type="tel"
+                  value={contactPhoneCustom}
+                  onChange={(e) => setContactPhoneCustom(e.target.value)}
+                  placeholder="(404) 555-0100"
+                  autoComplete="tel"
+                  className="h-11 text-sm"
+                />
+              </div>
+            ) : null}
+
+            <div>
+              <FieldLabel htmlFor="directions-parking">Directions & parking</FieldLabel>
+              <textarea
+                id="directions-parking"
+                value={directionsParking}
+                onChange={(e) => setDirectionsParking(e.target.value)}
+                rows={3}
+                placeholder="Parking rules, which entrance to use, neighborhood notes…"
+                className={cn(
+                  "w-full resize-none rounded-xl border border-input bg-transparent px-3 py-2.5 text-sm outline-none",
+                  "placeholder:text-muted-foreground",
+                  "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40",
+                  "dark:bg-input/30",
+                )}
+              />
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            icon={<MapPin className="h-5 w-5" />}
+            title="Address & reveal timing"
+            description="US addresses only. The exact pin stays hidden until your reveal time."
+          >
+            <div>
+              <FieldLabel htmlFor="sale-address">Street address</FieldLabel>
+              <div
+                ref={containerRef}
+                className={cn(
+                  "sale-location-place-autocomplete min-h-11 w-full rounded-xl",
+                  mapsLoading && "pointer-events-none opacity-50",
+                )}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {mapsLoading
+                  ? "Loading address search…"
+                  : "Select a suggestion to lock coordinates."}
+              </p>
+            </div>
+
+            <div>
+              <FieldLabel htmlFor="reveal-at">Address visible to buyers at</FieldLabel>
+              <Input
+                id="reveal-at"
+                type="datetime-local"
+                value={availableAt}
+                onChange={(e) => setAvailableAt(e.target.value)}
+                className="h-11 text-sm"
+              />
+            </div>
+
+            {revealCountdown ? (
+              <div className="flex items-center gap-3 rounded-xl border border-accent/25 bg-accent/[0.06] px-4 py-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
+                  <Clock className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {revealCountdown}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Fuzzy pin (~0.5 mi) shown before reveal
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/30 px-4 py-3 dark:bg-zinc-950/40">
+              <EyeOff className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                <span className="font-medium text-foreground">Privacy:</span>{" "}
+                Exact coordinates are stored securely for your dashboard. The public map shows an
+                approximate location until reveal time.
+              </p>
+            </div>
+          </SectionCard>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="reveal-at" className="text-sm font-medium text-foreground">
-            Address visible to buyers at
-          </label>
-          <Input
-            id="reveal-at"
-            type="datetime-local"
-            value={availableAt}
-            onChange={(e) => setAvailableAt(e.target.value)}
-          />
-        </div>
-
-        <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground dark:bg-zinc-950/50">
-          <strong className="text-foreground">Privacy:</strong> the public map shows an approximate
-          location until reveal time; exact coordinates are stored for your dashboard and for after
-          reveal.
-        </div>
-
-        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border pt-4">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
           <Link
             href="/dashboard"
             className={buttonVariants({ variant: "outline", size: "default" })}
@@ -472,7 +610,7 @@ export default function SaleLocationForm({ saleId, initial }: Props) {
           <Button
             onClick={() => void handleNext()}
             disabled={basicsMutation.isPending || mapsLoading}
-            className="bg-accent font-semibold text-white hover:bg-accent/90"
+            className="h-11 bg-accent px-8 text-sm font-semibold text-white hover:bg-accent/90"
           >
             {basicsMutation.isPending ? (
               <>
@@ -480,7 +618,7 @@ export default function SaleLocationForm({ saleId, initial }: Props) {
                 Saving…
               </>
             ) : (
-              "Next"
+              "Next →"
             )}
           </Button>
         </div>
