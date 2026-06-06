@@ -20,21 +20,21 @@ export function OperatorSaleWizardShell({
   children,
 }: Props) {
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-10">
+    <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-10">
       <SaleCreationStepper steps={[...saleCreationSteps(saleId)]} />
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Draft · {draftTitle}
-        </p>
-        <DeleteSaleButton saleId={saleId} />
+      <div className="mb-10 mt-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <p className="text-sm text-muted-foreground">Draft · {draftTitle}</p>
+          <DeleteSaleButton saleId={saleId} />
+        </div>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
+          {heading}
+        </h1>
+        {description ? (
+          <p className="mt-2 max-w-2xl text-muted-foreground">{description}</p>
+        ) : null}
       </div>
-      <h1 className="mt-2 font-display text-3xl uppercase tracking-tight text-foreground">
-        {heading}
-      </h1>
-      {description ? (
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-      ) : null}
       {children}
-    </div>
+    </main>
   );
 }

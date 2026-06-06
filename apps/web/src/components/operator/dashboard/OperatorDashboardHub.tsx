@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { CreateDraftSaleButton } from "@/components/operator/CreateDraftSaleButton";
+import { DashboardPageShell } from "@/components/operator/dashboard/DashboardPageShell";
 import { buttonVariants } from "@/components/ui/button";
 import {
   resolveSaleStatus,
@@ -94,34 +95,36 @@ export function OperatorDashboardHub({
   }, [sales, status, search]);
 
   return (
-    <div className="min-h-full flex-1 bg-background">
-      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-            {showOperatorProfileLink ? (
-              <Link
-                href="/dashboard/profile"
-                className={cn(
-                  buttonVariants({ size: "sm", variant: "outline" }),
-                  "rounded-lg",
-                )}
-              >
-                Profile
-              </Link>
-            ) : null}
-            {sales.length > 0 ? (
-              <CreateDraftSaleButton
-                size="sm"
-                label="New sale"
-                className="rounded-lg px-4"
-              />
-            ) : null}
-          </div>
-        </header>
-
+    <DashboardPageShell
+      title="Sales"
+      description="Create drafts, publish listings, and manage your estate sales."
+      width="wide"
+      actions={
+        <>
+          {showOperatorProfileLink ? (
+            <Link
+              href="/dashboard/profile"
+              className={cn(
+                buttonVariants({ size: "sm", variant: "outline" }),
+                "rounded-lg",
+              )}
+            >
+              Profile
+            </Link>
+          ) : null}
+          {sales.length > 0 ? (
+            <CreateDraftSaleButton
+              size="sm"
+              label="New sale"
+              className="rounded-lg px-4"
+            />
+          ) : null}
+        </>
+      }
+    >
         {/* Search + status */}
-        <div className="mt-8">
-          <div className="rounded-2xl border border-border bg-card p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40 sm:p-5">
+        <div>
+          <div className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
             <div className="flex flex-col gap-3">
               <div className="flex w-full max-w-3xl items-stretch gap-2">
                 <div className="relative min-w-0 flex-1">
@@ -134,7 +137,7 @@ export function OperatorDashboardHub({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title or listing slug…"
-                    className="h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 dark:border-zinc-800 dark:bg-zinc-950/50"
+                    className="h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-ring/25"
               aria-label="Search sales"
             />
                 </div>
@@ -150,7 +153,7 @@ export function OperatorDashboardHub({
                       "h-9 rounded-full border px-3.5 text-sm font-medium transition",
                   status === opt.value
                     ? "border-accent bg-accent text-white shadow-sm"
-                    : "border-border bg-background/80 text-muted-foreground hover:border-accent/40 hover:text-foreground dark:border-zinc-800 dark:bg-zinc-950/40",
+                    : "border-border bg-background text-muted-foreground hover:border-border hover:text-foreground",
                 )}
               >
                 {opt.label}
@@ -173,8 +176,7 @@ export function OperatorDashboardHub({
             ))}
           </ul>
         )}
-      </div>
-    </div>
+    </DashboardPageShell>
   );
 }
 
@@ -186,7 +188,7 @@ function SaleHubCard({ sale }: { sale: DashboardSaleRow }) {
   const overviewHref = `/dashboard/sales/${sale.id}`;
 
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-border bg-card/90 shadow-sm transition hover:border-accent/35 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/60 dark:hover:border-accent/30">
+    <article className="group flex h-full flex-col rounded-xl border border-border bg-card shadow-sm transition hover:border-border hover:shadow-md">
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-start justify-between gap-2">
           <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-snug text-foreground">
@@ -216,7 +218,7 @@ function SaleHubCard({ sale }: { sale: DashboardSaleRow }) {
           </p>
         ) : null}
 
-        <div className="mt-auto flex flex-wrap gap-2 border-t border-border pt-4 dark:border-zinc-800">
+        <div className="mt-auto flex flex-wrap gap-2 border-t border-border pt-4">
           {displayStatus === "draft" ? (
             <Link
               href={editHref}
@@ -260,11 +262,11 @@ function SaleHubCard({ sale }: { sale: DashboardSaleRow }) {
 
 function EmptyState({ hasAnySales }: { hasAnySales: boolean }) {
   return (
-    <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 py-16 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40">
+    <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-border bg-card px-6 py-16 text-center shadow-sm">
       <div className="mb-5 flex size-16 items-center justify-center rounded-2xl bg-accent/10 ring-1 ring-border">
         <Home className="size-8 text-accent" aria-hidden />
       </div>
-      <h2 className="text-2xl font-bold tracking-tight text-foreground">
+      <h2 className="text-xl font-semibold text-foreground">
         {hasAnySales ? "No sales match filters" : "No sales yet"}
       </h2>
       <p className="mt-2 max-w-md text-sm text-muted-foreground">

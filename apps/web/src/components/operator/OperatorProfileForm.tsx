@@ -1,6 +1,7 @@
 "use client";
 
 import { updateOperatorProfile } from "@/app/dashboard/profile/actions";
+import { DashboardSection } from "@/components/operator/dashboard/DashboardPageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +29,11 @@ type Props = {
   initial: OperatorRow;
   email: string;
 };
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="text-destructive text-xs">{message}</p>;
+}
 
 export function OperatorProfileForm({ initial, email }: Props) {
   const router = useRouter();
@@ -71,10 +77,7 @@ export function OperatorProfileForm({ initial, email }: Props) {
   }
 
   return (
-    <form
-      onSubmit={form.handleSubmit(onSubmit)}
-      className="mt-8 max-w-lg space-y-8"
-    >
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       {(form.formState.errors.root || serverError) && (
         <div
           className="border-destructive/40 bg-destructive/10 text-destructive flex items-start gap-2 rounded-lg border px-3 py-2 text-sm"
@@ -85,157 +88,149 @@ export function OperatorProfileForm({ initial, email }: Props) {
         </div>
       )}
 
-      <fieldset className="space-y-3">
-        <legend className="font-display text-lg uppercase tracking-tight">
-          How you sell
-        </legend>
-        <p className="text-muted-foreground text-sm">
-          This sets how your name and branding appear on listings.
-        </p>
-        <div className="grid gap-2 sm:grid-cols-2">
-          <label
-            className={cn(
-              "flex cursor-pointer flex-col rounded-lg border p-3 transition-colors",
-              kind === "individual"
-                ? "border-primary bg-primary/5"
-                : "border-border hover:bg-muted/40",
-            )}
-          >
-            <input
-              type="radio"
-              className="sr-only"
-              value="individual"
-              {...form.register("operator_kind")}
-            />
-            <span className="font-medium">Private / one-off</span>
-            <span className="text-muted-foreground text-xs">
-              Personal or occasional sales.
-            </span>
-          </label>
-          <label
-            className={cn(
-              "flex cursor-pointer flex-col rounded-lg border p-3 transition-colors",
-              kind === "company"
-                ? "border-primary bg-primary/5"
-                : "border-border hover:bg-muted/40",
-            )}
-          >
-            <input
-              type="radio"
-              className="sr-only"
-              value="company"
-              {...form.register("operator_kind")}
-            />
-            <span className="font-medium">Company</span>
-            <span className="text-muted-foreground text-xs">
-              Business or team name on listings.
-            </span>
-          </label>
+      <DashboardSection
+        title="Business information"
+        description="How your name and branding appear on public listings."
+      >
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-foreground">Business type</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label
+              className={cn(
+                "flex cursor-pointer flex-col rounded-lg border p-3 transition-colors",
+                kind === "individual"
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:bg-muted/40",
+              )}
+            >
+              <input
+                type="radio"
+                className="sr-only"
+                value="individual"
+                {...form.register("operator_kind")}
+              />
+              <span className="font-medium">Private / one-off</span>
+              <span className="text-muted-foreground text-xs">
+                Personal or occasional sales.
+              </span>
+            </label>
+            <label
+              className={cn(
+                "flex cursor-pointer flex-col rounded-lg border p-3 transition-colors",
+                kind === "company"
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:bg-muted/40",
+              )}
+            >
+              <input
+                type="radio"
+                className="sr-only"
+                value="company"
+                {...form.register("operator_kind")}
+              />
+              <span className="font-medium">Company</span>
+              <span className="text-muted-foreground text-xs">
+                Business or team name on listings.
+              </span>
+            </label>
+          </div>
         </div>
-      </fieldset>
 
-      <div className="space-y-2">
-        <label htmlFor="name" className="text-sm font-medium">
-          {kind === "company" ? "Contact name" : "Your name"}
-        </label>
-        <Input id="name" {...form.register("name")} autoComplete="name" />
-        {form.formState.errors.name && (
-          <p className="text-destructive text-xs">
-            {form.formState.errors.name.message}
-          </p>
-        )}
-      </div>
+        {kind === "company" ? (
+          <>
+            <div className="space-y-2">
+              <label htmlFor="company_name" className="text-sm font-medium">
+                Company name
+              </label>
+              <Input
+                id="company_name"
+                {...form.register("company_name")}
+                autoComplete="organization"
+              />
+              <FieldError message={form.formState.errors.company_name?.message} />
+            </div>
 
-      {kind === "company" ? (
-        <>
-          <div className="space-y-2">
-            <label htmlFor="company_name" className="text-sm font-medium">
-              Company name
-            </label>
-            <Input
-              id="company_name"
-              {...form.register("company_name")}
-              autoComplete="organization"
-            />
-            {form.formState.errors.company_name && (
-              <p className="text-destructive text-xs">
-                {form.formState.errors.company_name.message}
-              </p>
-            )}
-          </div>
+            <div className="space-y-2">
+              <label htmlFor="company_logo_url" className="text-sm font-medium">
+                Company logo URL{" "}
+                <span className="text-muted-foreground font-normal">(optional)</span>
+              </label>
+              <Input
+                id="company_logo_url"
+                type="url"
+                placeholder="https://…"
+                {...form.register("company_logo_url")}
+              />
+              <FieldError message={form.formState.errors.company_logo_url?.message} />
+              {logoUrl?.trim() ? (
+                <div className="border-border mt-2 overflow-hidden rounded-lg border bg-background p-3">
+                  <p className="text-muted-foreground mb-2 text-xs">Preview</p>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary user-supplied HTTPS URL */}
+                  <img
+                    src={logoUrl.trim()}
+                    alt=""
+                    className="mx-auto max-h-20 w-auto object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </>
+        ) : null}
+      </DashboardSection>
 
-          <div className="space-y-2">
-            <label htmlFor="company_logo_url" className="text-sm font-medium">
-              Company logo URL{" "}
-              <span className="text-muted-foreground font-normal">(optional)</span>
-            </label>
-            <Input
-              id="company_logo_url"
-              type="url"
-              placeholder="https://…"
-              {...form.register("company_logo_url")}
-            />
-            {form.formState.errors.company_logo_url && (
-              <p className="text-destructive text-xs">
-                {form.formState.errors.company_logo_url.message}
-              </p>
-            )}
-            {logoUrl?.trim() ? (
-              <div className="border-border mt-2 overflow-hidden rounded-lg border bg-white p-3 dark:bg-zinc-950">
-                <p className="text-muted-foreground mb-2 text-xs">Preview</p>
-                {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary user-supplied HTTPS URL */}
-                <img
-                  src={logoUrl.trim()}
-                  alt=""
-                  className="mx-auto max-h-20 w-auto object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              </div>
-            ) : null}
-          </div>
-        </>
-      ) : null}
+      <DashboardSection title="Contact information">
+        <div className="space-y-2">
+          <label htmlFor="name" className="text-sm font-medium">
+            {kind === "company" ? "Contact name" : "Your name"}
+          </label>
+          <Input id="name" {...form.register("name")} autoComplete="name" />
+          <FieldError message={form.formState.errors.name?.message} />
+        </div>
 
-      <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium">
-          Email
-        </label>
-        <Input id="email" value={email} disabled readOnly />
-        <p className="text-muted-foreground text-xs">
-          Sign-in email; change it from your account provider if needed.
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <label htmlFor="phone" className="text-sm font-medium">
             Phone{" "}
             <span className="text-muted-foreground font-normal">(optional)</span>
           </label>
-          <Input id="phone" type="tel" {...form.register("phone")} />
-          {form.formState.errors.phone && (
-            <p className="text-destructive text-xs">
-              {form.formState.errors.phone.message}
-            </p>
-          )}
+          <Input id="phone" type="tel" {...form.register("phone")} autoComplete="tel" />
+          <FieldError message={form.formState.errors.phone?.message} />
         </div>
-        <div className="grid grid-cols-2 gap-2">
+
+        <div className="space-y-2">
+          <label htmlFor="email" className="text-sm font-medium">
+            Email
+          </label>
+          <Input id="email" value={email} disabled readOnly />
+          <p className="text-muted-foreground text-xs">
+            Sign-in email; change it from your account provider if needed.
+          </p>
+        </div>
+      </DashboardSection>
+
+      <DashboardSection title="Location">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <label htmlFor="city" className="text-sm font-medium">
               City
             </label>
-            <Input id="city" {...form.register("city")} />
+            <Input id="city" {...form.register("city")} autoComplete="address-level2" />
           </div>
           <div className="space-y-2">
             <label htmlFor="state" className="text-sm font-medium">
               State
             </label>
-            <Input id="state" maxLength={2} {...form.register("state")} />
+            <Input
+              id="state"
+              maxLength={2}
+              {...form.register("state")}
+              autoComplete="address-level1"
+            />
           </div>
         </div>
-      </div>
+      </DashboardSection>
 
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={form.formState.isSubmitting}>
@@ -245,7 +240,7 @@ export function OperatorProfileForm({ initial, email }: Props) {
               Saving…
             </>
           ) : (
-            "Save"
+            "Save changes"
           )}
         </Button>
         {justSaved && !form.formState.isSubmitting ? (

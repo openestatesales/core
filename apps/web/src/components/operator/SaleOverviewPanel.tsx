@@ -3,6 +3,10 @@ import { CalendarRange, ExternalLink, MapPin } from "lucide-react";
 
 import type { OperatorSaleWizard } from "@/app/dashboard/actions";
 import { DeleteSaleButton } from "@/components/operator/DeleteSaleButton";
+import {
+  DashboardPageShell,
+  DashboardSection,
+} from "@/components/operator/dashboard/DashboardPageShell";
 import { buttonVariants } from "@/components/ui/button";
 import {
   resolveSaleStatus,
@@ -34,39 +38,27 @@ export function SaleOverviewPanel({ sale }: Props) {
   const dates = formatRange(sale.start_date, sale.end_date);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-10">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <Link
-          href="/dashboard"
-          className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "rounded-lg")}
-        >
-          ← Dashboard
-        </Link>
-        {displayStatus === "ended" ? <DeleteSaleButton saleId={sale.id} /> : null}
-      </div>
+    <DashboardPageShell
+      title={sale.title}
+      description={`${sale.city}, ${sale.state}${dates ? ` · ${dates}` : ""}`}
+      backHref="/dashboard"
+      actions={
+        displayStatus === "ended" ? <DeleteSaleButton saleId={sale.id} /> : undefined
+      }
+    >
+      <DashboardSection title="Listing status">
+        <div className="space-y-4">
+          <span
+            className={cn(
+              "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1",
+              saleStatusStyle(sale.status, sale.end_date),
+            )}
+          >
+            {saleStatusLabel(sale.status, sale.end_date)}
+          </span>
 
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-accent/60 via-accent to-accent/60" />
-
-        <div className="space-y-6 p-6 md:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0 space-y-2">
-              <span
-                className={cn(
-                  "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1",
-                  saleStatusStyle(sale.status, sale.end_date),
-                )}
-              >
-                {saleStatusLabel(sale.status, sale.end_date)}
-              </span>
-              <h1 className="font-display text-2xl uppercase tracking-tight text-foreground sm:text-3xl">
-                {sale.title}
-              </h1>
-            </div>
-          </div>
-
-          <div className="space-y-3 text-sm">
-            <p className="flex items-center gap-2 text-muted-foreground">
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p className="flex items-center gap-2">
               <MapPin className="size-4 shrink-0 text-accent" aria-hidden />
               {sale.city}, {sale.state}
             </p>
@@ -78,7 +70,7 @@ export function SaleOverviewPanel({ sale }: Props) {
             ) : null}
           </div>
 
-          <div className="rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm leading-relaxed text-muted-foreground dark:bg-zinc-950/40">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             {displayStatus === "published" ? (
               <>
                 This sale is <strong className="text-foreground">live</strong> on the public
@@ -88,21 +80,18 @@ export function SaleOverviewPanel({ sale }: Props) {
             ) : (
               <>
                 This sale has <strong className="text-foreground">ended</strong>. The listing
-                stays on the site as a record, but it no longer appears in search or on the map.
-                You can delete it from your dashboard if you no longer need it.
+                stays on the site as a record, but it no longer appears in search or on the
+                map. You can delete it from your dashboard if you no longer need it.
               </>
             )}
-          </div>
+          </p>
 
-          <div className="flex flex-wrap gap-3 border-t border-border pt-5">
+          <div className="flex flex-wrap gap-3 border-t border-border pt-4">
             <Link
               href={publicHref}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(
-                buttonVariants({ size: "default" }),
-                "gap-2 bg-accent font-semibold text-white hover:bg-accent/90",
-              )}
+              className={cn(buttonVariants({ size: "default" }), "gap-2")}
             >
               View listing
               <ExternalLink className="size-4" aria-hidden />
@@ -111,11 +100,11 @@ export function SaleOverviewPanel({ sale }: Props) {
               href="/dashboard"
               className={buttonVariants({ variant: "outline", size: "default" })}
             >
-              Back to dashboard
+              Back to sales
             </Link>
           </div>
         </div>
-      </div>
-    </div>
+      </DashboardSection>
+    </DashboardPageShell>
   );
 }

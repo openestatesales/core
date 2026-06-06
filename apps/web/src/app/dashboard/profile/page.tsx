@@ -1,6 +1,6 @@
 import { OperatorProfileForm } from "@/components/operator/OperatorProfileForm";
+import { DashboardPageShell } from "@/components/operator/dashboard/DashboardPageShell";
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function OperatorProfilePage() {
@@ -34,25 +34,12 @@ export default async function OperatorProfilePage() {
   };
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:px-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl uppercase tracking-tight text-foreground">
-            Profile
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Operator details and how you appear on listings.
-          </p>
-        </div>
-        <Link
-          href="/dashboard"
-          className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
-        >
-          ← Dashboard
-        </Link>
-      </div>
-
+    <DashboardPageShell
+      title="Profile"
+      description="Manage your account information and how your business appears on listings."
+      backHref="/dashboard"
+    >
       <OperatorProfileForm initial={initial} email={user.email} />
-    </main>
+    </DashboardPageShell>
   );
 }
