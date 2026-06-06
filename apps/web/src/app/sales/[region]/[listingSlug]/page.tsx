@@ -1,40 +1,59 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertCircle, CalendarRange, Clock, MapPin } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  CalendarRange,
+  Camera,
+  ChevronDown,
+  Clock,
+  MapPin,
+} from "lucide-react";
 
 import { getPublicSale } from "@/apis/data/sales";
-import { SaleBreadcrumbs } from "@/components/sale/SaleBreadcrumbs";
-import { SaleContactRunner } from "@/components/sale/SaleContactRunner";
 import { SaleDescriptionHtml } from "@/components/sale/SaleDescriptionHtml";
+import {
+  SaleCategoryChips,
+  SaleFeaturedFinds,
+  SaleHostTrust,
+  SaleStickyActions,
+} from "@/components/sale/SaleListingChrome";
+import { SalePhotoCarousel } from "@/components/sale/SalePhotoCarousel";
+import { SalePhotoMasonry } from "@/components/sale/SalePhotoMasonry";
 import SaleDetailMap from "@/components/sale/SaleDetailMap";
-import { SaleHeroGallery } from "@/components/sale/SaleHeroGallery";
-import { salePhotoPublicUrl } from "@/config/sale-photos";
+import {
+  inferFeaturedFinds,
+  inferSaleCategories,
+  saleAboutIntro,
+} from "@/lib/sale-listing-insights";
 import { publicSaleToExploreSale } from "@/lib/map/public-sale-to-explore-sale";
-import { absoluteUrl, canonicalSaleUrl } from "@/utils/seo";
+import { salePhotoPublicUrl } from "@/config/sale-photos";
 import { plainTextFromHtml } from "@/utils/html";
+import { absoluteUrl, canonicalSaleUrl } from "@/utils/seo";
 import { salePublicPath } from "@/utils/sales";
-import type { PublicOperator } from "@oes/types";
-import Image from "next/image";
 
 type Props = {
   params: Promise<{ region: string; listingSlug: string }>;
 };
 
 function isSaleEnded(endDate: string): boolean {
-  const today = new Date().toISOString().slice(0, 10);
-  return endDate < today;
+  return endDate < new Date().toISOString().slice(0, 10);
 }
 
 function formatUsDate(isoDate: string): string {
   const d = new Date(isoDate + "T12:00:00");
   if (Number.isNaN(d.getTime())) return isoDate;
   return new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
     month: "short",
     day: "numeric",
     year: "numeric",
   }).format(d);
+}
+
+function formatDateRange(start: string, end: string): string {
+  if (start === end) return formatUsDate(start);
+  return `${formatUsDate(start)} – ${formatUsDate(end)}`;
 }
 
 function formatRevealAt(iso: string): string {
@@ -53,23 +72,15 @@ function formatRevealAt(iso: string): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { region, listingSlug } = await params;
   const sale = await getPublicSale(region, listingSlug);
-  if (!sale) {
-    return { title: "Sale not found" };
-  }
+  if (!sale) return { title: "Sale not found" };
 
   const plain = plainTextFromHtml(sale.description ?? "");
   const description =
     plain.slice(0, 155).trim() ||
     `Estate sale in ${sale.city}, ${sale.state}. ${sale.start_date} – ${sale.end_date}.`;
-
   const title = `${sale.title} — ${sale.city}, ${sale.state}`;
-
-  const photos = [...(sale.photos ?? [])].sort(
-    (a, b) => a.sort_order - b.sort_order,
-  );
-  const firstSrc = photos[0]
-    ? salePhotoPublicUrl(photos[0].storage_path)
-    : null;
+  const photos = [...(sale.photos ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+  const firstSrc = photos[0] ? salePhotoPublicUrl(photos[0].storage_path) : null;
 
   return {
     title,
@@ -80,16 +91,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: canonicalSaleUrl(region, listingSlug),
       type: "website",
       ...(firstSrc
-        ? {
-            images: [
-              {
-                url: firstSrc,
-                width: 1200,
-                height: 630,
-                alt: sale.title,
-              },
-            ],
-          }
+        ? { images: [{ url: firstSrc, width: 1200, height: 630, alt: sale.title }] }
         : {}),
     },
     twitter: {
@@ -98,49 +100,52 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       ...(firstSrc ? { images: [firstSrc] } : {}),
     },
-    alternates: {
-      canonical: canonicalSaleUrl(region, listingSlug),
-    },
+    alternates: { canonical: canonicalSaleUrl(region, listingSlug) },
   };
-}
-
-function ListedByLine({ operator }: { operator: PublicOperator | undefined }) {
-  if (!operator) return null;
-  const label = operator.company_name?.trim() || operator.name;
-  return (
-    <p className="text-xs text-muted-foreground">
-      Listed by{" "}
-      <span className="font-medium text-foreground/90">{label}</span>
-      {operator.operator_kind === "company" ? (
-        <span className="ml-1 rounded-full bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent">
-          Company
-        </span>
-      ) : null}
-    </p>
-  );
 }
 
 export default async function SaleDetailPage({ params }: Props) {
   const { region, listingSlug } = await params;
   const sale = await getPublicSale(region, listingSlug);
-
-  if (!sale) {
-    notFound();
-  }
+  if (!sale) notFound();
 
   const explore = publicSaleToExploreSale(sale);
   const ended = isSaleEnded(sale.end_date);
-  const hasMapPin =
-    typeof explore.lat === "number" && typeof explore.lng === "number";
-  const addressIsExact = sale.lat != null && sale.lng != null && sale.address;
+  const hasMapPin = typeof explore.lat === "number" && typeof explore.lng === "number";
+  const addressIsExact = sale.lat != null && sale.lng != null && Boolean(sale.address);
 
-  const sortedPhotos = [...(sale.photos ?? [])].sort(
-    (a, b) => a.sort_order - b.sort_order,
-  );
-  const morePhotos = sortedPhotos.length > 5 ? sortedPhotos.slice(5) : [];
-
+  const sortedPhotos = [...(sale.photos ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+  const photoCount = sortedPhotos.length;
   const runnerLabel =
     sale.operator?.company_name?.trim() || sale.operator?.name || "the host";
+
+  const dateRange = formatDateRange(sale.start_date, sale.end_date);
+  const categories = inferSaleCategories(sale.description);
+  const featuredFinds = inferFeaturedFinds(sale.description);
+  const aboutIntro = saleAboutIntro(sale.description);
+
+  const addressLine =
+    addressIsExact && sale.address
+      ? sale.address
+      : sale.address_reveal_at
+        ? `Exact address releases ${formatRevealAt(sale.address_reveal_at)}`
+        : "Exact address shared before the sale starts";
+
+  const actionProps = {
+    saleId: sale.id,
+    title: sale.title,
+    dateRange,
+    previewTimes: sale.preview_times,
+    city: sale.city,
+    state: sale.state,
+    zip: sale.zip,
+    ended,
+    addressIsExact,
+    address: sale.address,
+    addressLine,
+    lat: sale.lat,
+    lng: sale.lng,
+  };
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -164,177 +169,145 @@ export default async function SaleDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-        <SaleBreadcrumbs
-          regionSlug={sale.region_slug}
-          listingTitleHint={
-            sale.title.length > 48 ? `${sale.title.slice(0, 45)}…` : sale.title
-          }
-        />
+    <div className="min-h-screen bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-100">
+      <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <Link
+          href="/"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-stone-600 transition hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
+        >
+          <ArrowLeft className="size-4" aria-hidden />
+          All sales
+        </Link>
 
-        {sortedPhotos.length > 0 ? (
-          <div className="mt-6">
-            <SaleHeroGallery title={sale.title} photos={sortedPhotos} />
-          </div>
-        ) : null}
+        <SalePhotoCarousel title={sale.title} photos={sortedPhotos} />
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-3 lg:gap-10">
-          <div className="space-y-8 lg:col-span-2">
-            <header className="space-y-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px] lg:gap-10 xl:grid-cols-[1fr_360px]">
+          <div className="min-w-0 space-y-8">
+            <header className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+              {ended ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800">
+                  <AlertCircle className="size-3.5" aria-hidden />
+                  This sale has ended
+                </span>
+              ) : null}
+
+              <div>
+                <h1 className="text-2xl font-bold leading-snug text-stone-900 sm:text-3xl dark:text-stone-50">
                   {sale.title}
                 </h1>
-                {ended ? (
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive ring-1 ring-destructive/20">
-                    <AlertCircle className="size-3.5" aria-hidden />
-                    Sale ended
+                {photoCount > 0 && categories.length > 0 ? (
+                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+                    <Camera className="mr-1 inline size-3.5 text-amber-600" aria-hidden />
+                    {photoCount} {photoCount === 1 ? "photo" : "photos"}
+                    {" · "}
+                    {categories.slice(0, 3).join(" · ")}
+                  </p>
+                ) : photoCount > 0 ? (
+                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+                    <Camera className="mr-1 inline size-3.5 text-amber-600" aria-hidden />
+                    {photoCount} {photoCount === 1 ? "photo" : "photos"}
+                  </p>
+                ) : null}
+              </div>
+
+              <SaleHostTrust operator={sale.operator ?? undefined} viewCount={sale.view_count} />
+
+              <div className="flex flex-col gap-2 text-sm text-stone-700 dark:text-stone-300 sm:flex-row sm:flex-wrap sm:gap-x-5">
+                <span className="inline-flex items-center gap-2">
+                  <MapPin className="size-4 shrink-0 text-amber-600" aria-hidden />
+                  {sale.city}, {sale.state}
+                  {sale.zip ? ` ${sale.zip}` : ""}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <CalendarRange className="size-4 shrink-0 text-amber-600" aria-hidden />
+                  {dateRange}
+                </span>
+                {sale.preview_times?.trim() ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Clock className="size-4 shrink-0 text-amber-600" aria-hidden />
+                    {sale.preview_times.trim()}
                   </span>
                 ) : null}
               </div>
 
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="size-4 shrink-0 text-accent" aria-hidden />
-                  {sale.city}, {sale.state}
-                  {sale.zip ? ` · ${sale.zip}` : null}
-                </span>
-              </div>
-
-              <div className="space-y-2 rounded-xl border border-border bg-card/60 px-4 py-3 text-sm dark:border-zinc-800">
-                <p className="flex items-start gap-2 text-foreground/90">
-                  <Clock className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
-                  <span>
-                    {ended
-                      ? "This sale has ended."
-                      : addressIsExact && sale.address
-                        ? sale.address
-                        : sale.address_reveal_at
-                          ? `Address released ${formatRevealAt(sale.address_reveal_at)}`
-                          : "Address is shared at the scheduled reveal time."}
-                  </span>
-                </p>
-                <p className="flex items-center gap-2 text-foreground/90">
-                  <CalendarRange className="size-4 shrink-0 text-accent" aria-hidden />
-                  <span>
-                    {formatUsDate(sale.start_date)}
-                    {sale.start_date !== sale.end_date
-                      ? ` — ${formatUsDate(sale.end_date)}`
-                      : null}
-                  </span>
-                </p>
-              </div>
+              <SaleCategoryChips categories={categories} />
             </header>
 
-            {morePhotos.length > 0 ? (
-              <section aria-labelledby="more-photos-heading">
+            <div className="lg:hidden">
+              <SaleStickyActions
+                action={actionProps}
+                runnerLabel={runnerLabel}
+                contactEmail={sale.listing_contact_email ?? null}
+              />
+            </div>
+
+            <SaleFeaturedFinds items={featuredFinds} />
+
+            {sortedPhotos.length > 0 ? (
+              <section aria-labelledby="photo-gallery-heading">
                 <h2
-                  id="more-photos-heading"
-                  className="mb-3 text-base font-semibold text-foreground"
+                  id="photo-gallery-heading"
+                  className="mb-4 text-lg font-semibold text-stone-900 dark:text-stone-50"
                 >
-                  More photos
+                  Photo gallery
                 </h2>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
-                  {morePhotos.map((photo, i) => {
-                    const src = salePhotoPublicUrl(photo.storage_path);
-                    if (!src) return null;
-                    return (
-                      <div
-                        key={photo.id}
-                        className="relative aspect-square overflow-hidden rounded-lg border border-border bg-muted"
-                      >
-                        <Image
-                          src={src}
-                          alt={
-                            photo.alt_text?.trim() ||
-                            `${sale.title} — photo ${i + 6}`
-                          }
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 45vw, 20vw"
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+                <SalePhotoMasonry title={sale.title} photos={sortedPhotos} />
               </section>
             ) : null}
 
             {sale.description?.trim() ? (
               <section
-                className="rounded-2xl border border-border bg-card/80 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40 sm:p-8"
                 aria-labelledby="sale-about-heading"
+                className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900"
               >
                 <h2
                   id="sale-about-heading"
-                  className="mb-4 font-display text-xl font-semibold text-foreground"
+                  className="mb-3 text-lg font-semibold text-stone-900 dark:text-stone-50"
                 >
-                  About this sale
+                  About this estate sale
                 </h2>
-                <SaleDescriptionHtml html={sale.description} />
+                {aboutIntro ? (
+                  <p className="mb-4 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+                    {aboutIntro}
+                  </p>
+                ) : null}
+                <div className="prose prose-stone dark:prose-invert max-w-none prose-p:leading-relaxed">
+                  <SaleDescriptionHtml html={sale.description} />
+                </div>
               </section>
+            ) : null}
+
+            {hasMapPin ? (
+              <details className="group rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-semibold text-stone-900 marker:content-none dark:text-stone-50">
+                  <span className="inline-flex items-center gap-2">
+                    <MapPin className="size-4 text-amber-600" aria-hidden />
+                    Map & directions
+                  </span>
+                  <ChevronDown
+                    className="size-4 text-stone-500 transition group-open:rotate-180"
+                    aria-hidden
+                  />
+                </summary>
+                <div className="border-t border-stone-100 px-4 pb-4 pt-2 dark:border-stone-800">
+                  {!addressIsExact ? (
+                    <p className="mb-2 text-xs text-stone-500">
+                      Approximate area until the exact address is released.
+                    </p>
+                  ) : null}
+                  <SaleDetailMap sale={explore} compact bare />
+                </div>
+              </details>
             ) : null}
           </div>
 
-          <aside className="space-y-6 lg:col-span-1">
-            <div className="rounded-2xl border border-border bg-card/90 p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/50">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Dates & hours
-              </h3>
-              <p className="mt-3 text-foreground">
-                <span className="font-medium">{formatUsDate(sale.start_date)}</span>
-                {sale.start_date !== sale.end_date ? (
-                  <>
-                    {" "}
-                    <span className="text-muted-foreground">to</span>{" "}
-                    <span className="font-medium">
-                      {formatUsDate(sale.end_date)}
-                    </span>
-                  </>
-                ) : null}
-              </p>
-              {sale.preview_times?.trim() ? (
-                <p className="mt-3 border-t border-border pt-3 text-sm text-muted-foreground dark:border-zinc-800">
-                  <span className="font-medium text-foreground/90">Hours: </span>
-                  {sale.preview_times}
-                </p>
-              ) : null}
-            </div>
-
-            <SaleContactRunner
-              saleTitle={sale.title}
-              runnerLabel={runnerLabel}
-              contactEmail={sale.listing_contact_email ?? null}
-            />
-
-            <ListedByLine operator={sale.operator ?? undefined} />
-
-            {hasMapPin ? (
-              <section
-                className="space-y-2"
-                aria-labelledby="area-map-heading"
-              >
-                <h3
-                  id="area-map-heading"
-                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                >
-                  Area map
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Approximate location until the address is released.
-                </p>
-                <SaleDetailMap sale={explore} compact />
-              </section>
-            ) : null}
-
-            <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-4 dark:border-zinc-800">
-              <Link
-                href="/"
-                className="text-sm font-medium text-accent hover:underline"
-              >
-                ← Browse more estate sales
-              </Link>
+          <aside className="hidden lg:block">
+            <div className="sticky top-24">
+              <SaleStickyActions
+                action={actionProps}
+                runnerLabel={runnerLabel}
+                contactEmail={sale.listing_contact_email ?? null}
+              />
             </div>
           </aside>
         </div>

@@ -73,7 +73,7 @@ export default function StickyControlBar({
         className,
       )}
     >
-      <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6">
+      <div className="mx-auto w-full max-w-7xl px-4 py-3 sm:px-6">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative min-w-0 flex-1">

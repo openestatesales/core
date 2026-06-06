@@ -16,9 +16,6 @@ import { geocodeLocation } from "@/utils/googleMaps";
 type Props = {
   sales: ExploreSale[];
   initialCenter?: [number, number];
-  /** Optional hero — use on home page */
-  heroTitle?: string;
-  heroSubtitle?: string;
 };
 
 const distanceCycle = [5, 10, 25, 50, 100] as const;
@@ -28,8 +25,6 @@ const saleTypeCycle: SaleType[] = ["all", "company", "personal"];
 export default function ExploreSales({
   sales,
   initialCenter = [33.749, -84.388],
-  heroTitle,
-  heroSubtitle,
 }: Props) {
   const [center, setCenter] = useState<[number, number]>(initialCenter);
   const [location, setLocation] = useState("");
@@ -105,21 +100,6 @@ export default function ExploreSales({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {heroTitle ? (
-        <header className="border-b border-border/60 bg-background px-4 py-10 sm:px-6 sm:py-12 md:py-14">
-          <div className="mx-auto max-w-7xl">
-            <h1 className="max-w-3xl font-display text-4xl uppercase leading-[0.95] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-              {heroTitle}
-            </h1>
-            {heroSubtitle ? (
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-                {heroSubtitle}
-              </p>
-            ) : null}
-          </div>
-        </header>
-      ) : null}
-
       <StickyControlBar
         location={location}
         onChangeLocation={setLocation}
@@ -158,7 +138,7 @@ export default function ExploreSales({
 
       {viewMode === "list" ? (
         <main className="flex-1 bg-background">
-          <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+          <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6">
             {filteredSales.length === 0 ? (
               <div className="rounded-2xl border border-border bg-card/90 p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/50">
                 <EmptySales
@@ -191,12 +171,7 @@ export default function ExploreSales({
           </div>
         </main>
       ) : (
-        <div
-          className={cn(
-            "relative min-h-[min(720px,calc(100dvh-11rem))] flex-1 bg-zinc-950",
-            "lg:min-h-[min(820px,calc(100dvh-12rem))]",
-          )}
-        >
+        <div className="relative min-h-[min(720px,calc(100dvh-11rem))] flex-1">
           <SalesMap
             sales={filteredSales}
             center={center}

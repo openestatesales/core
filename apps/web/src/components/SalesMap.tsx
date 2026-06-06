@@ -71,6 +71,11 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
 
   const metersPerMile = 1609.34;
 
+  const nudgeMapLayout = useCallback(() => {
+    if (!mapInstanceRef.current || typeof google === "undefined") return;
+    google.maps.event.trigger(mapInstanceRef.current, "resize");
+  }, []);
+
   const drawRadiusCircle = useCallback((centerCoords: { lat: number; lng: number }, radiusMiles: number) => {
     if (!mapInstanceRef.current || typeof google === 'undefined') return;
 
@@ -428,13 +433,21 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
         if (!mapInstanceRef.current) {
           initMap();
         }
+        window.requestAnimationFrame(() => nudgeMapLayout());
       } catch (error) {
-        console.error('Failed to load Google Maps:', error);
+        console.error("Failed to load Google Maps:", error);
       }
     };
 
-    initializeGoogleMaps();
-  }, [initMap]); // Only run once per init callback
+    void initializeGoogleMaps();
+  }, [initMap, nudgeMapLayout]);
+
+  // Map mounts when switching to Map view — tiles need a resize after layout settles.
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const t = window.setTimeout(() => nudgeMapLayout(), 100);
+    return () => window.clearTimeout(t);
+  }, [nudgeMapLayout]);
 
   useEffect(() => {
     if (mapInstanceRef.current && center) {
@@ -456,8 +469,8 @@ export default function SalesMap({ sales, center, distance = 25, onCenterChange 
   }, []);
 
   return (
-    <div className="relative w-full h-full">
-      <div ref={mapRef} className="w-full h-full" />
+    <div className="absolute inset-0">
+      <div ref={mapRef} className="h-full w-full" />
     </div>
   );
 }

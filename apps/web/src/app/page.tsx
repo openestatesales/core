@@ -23,12 +23,7 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <ExploreSales
-        sales={explore}
-        initialCenter={initialCenter}
-        heroTitle="Estate sales near you"
-        heroSubtitle="Browse what's opening this week — photos first, map when you're ready to go."
-      />
+      <ExploreSales sales={explore} initialCenter={initialCenter} />
       <HomeWaitlistStrip />
     </div>
   );

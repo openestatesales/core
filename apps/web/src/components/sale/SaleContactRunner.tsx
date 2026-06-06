@@ -28,7 +28,7 @@ export function SaleContactRunner({
     return (
       <div
         className={cn(
-          "rounded-2xl border border-border bg-card/90 p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/50",
+          "rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900",
           className,
         )}
       >
@@ -63,12 +63,12 @@ export function SaleContactRunner({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.07] to-transparent p-5 shadow-sm dark:border-accent/20 dark:from-accent/[0.05]",
+        "rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900",
         className,
       )}
     >
       <div className="flex items-start gap-2">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
           <Mail className="size-4" aria-hidden />
         </div>
         <div>
