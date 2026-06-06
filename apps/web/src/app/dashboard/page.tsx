@@ -1,4 +1,5 @@
 import { OperatorDashboardHub } from "@/components/operator/dashboard/OperatorDashboardHub";
+import { syncExpiredSalesForOperator } from "@/app/dashboard/actions";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardHomePage() {
@@ -10,6 +11,8 @@ export default async function DashboardHomePage() {
   if (!user) {
     return null;
   }
+
+  await syncExpiredSalesForOperator(supabase, user.id);
 
   const { data: sales } = await supabase
     .from("sales")

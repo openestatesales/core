@@ -26,7 +26,6 @@ function formatShortDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric",
   }).format(d);
 }
 
@@ -42,11 +41,10 @@ function formatSaleDateSummary(dates?: { sale_date: string }[]): string | null {
 
 type SaleCardProps = {
   sale: ExploreSale;
-  /** First cards in the list: pass true for slightly faster image loading */
   priority?: boolean;
   className?: string;
-  /** `grid` = compact tile for map+browse split (2 columns). `default` = full-width row card. */
-  variant?: "default" | "grid";
+  /** Photo-first tile for browse grids. `default` = full-width row card. */
+  variant?: "default" | "grid" | "editorial";
 };
 
 export default function SaleCard({
@@ -60,58 +58,52 @@ export default function SaleCard({
   const dateSummary = formatSaleDateSummary(sale.sale_dates);
   const imageSrc = sale.main_display_image?.trim() || "/placeholder.svg";
 
-  if (variant === "grid") {
+  if (variant === "grid" || variant === "editorial") {
     return (
       <Link
         href={href}
         className={cn(
-          "group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition",
-          "hover:border-accent/40 hover:shadow-md",
-          "dark:border-zinc-800 dark:bg-zinc-950/60 dark:hover:border-accent/35",
+          "group relative block overflow-hidden rounded-2xl bg-zinc-900 shadow-sm ring-1 ring-black/5 transition",
+          "hover:shadow-lg hover:ring-accent/30 dark:ring-white/10",
           className,
         )}
       >
-        <div className="relative aspect-[4/3] bg-muted">
+        <div className="relative aspect-[4/5] bg-muted">
           <Image
             src={imageSrc}
             alt={sale.title}
             fill
-            sizes="(max-width: 640px) 45vw, (max-width: 1280px) 22vw, 200px"
-            className="object-cover transition duration-300 group-hover:opacity-95"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover transition duration-500 ease-out group-hover:scale-[1.03]"
             priority={priority}
           />
-          <span
-            className={cn(
-              "absolute left-2 top-2 inline-flex max-w-[calc(100%-1rem)] items-center gap-0.5 truncate rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-black/10 sm:text-xs",
-              company
-                ? "bg-zinc-900/90 text-accent"
-                : "bg-white/95 text-zinc-800 dark:bg-zinc-950/90 dark:text-zinc-100",
-            )}
-          >
-            {company ? (
-              <Building2 className="size-3 shrink-0" aria-hidden />
-            ) : (
-              <User className="size-3 shrink-0" aria-hidden />
-            )}
-            <span className="truncate">{company ? "Company" : "Private"}</span>
-          </span>
-        </div>
-        <div className="flex flex-1 flex-col gap-1.5 p-2.5 sm:p-3">
-          <h3 className="line-clamp-2 text-left text-sm font-semibold leading-snug tracking-tight text-foreground">
-            {sale.title}
-          </h3>
-          <p className="flex items-start gap-1 text-[11px] text-muted-foreground sm:text-xs">
-            <MapPin className="mt-0.5 size-3 shrink-0 text-accent" aria-hidden />
-            <span className="line-clamp-2">
-              {sale.city}, {sale.state}
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5"
+            aria-hidden
+          />
+          {company ? (
+            <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white/90 backdrop-blur-sm">
+              <Building2 className="size-3" aria-hidden />
+              Company
             </span>
-          </p>
-          {dateSummary ? (
-            <p className="mt-auto flex items-center gap-1 text-[11px] text-foreground/80 dark:text-zinc-300 sm:text-xs">
-              <CalendarRange className="size-3 shrink-0 text-accent" aria-hidden />
-              <span className="line-clamp-1">{dateSummary}</span>
-            </p>
           ) : null}
+          <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-4">
+            <h3 className="font-display text-base uppercase leading-tight tracking-tight text-white sm:text-lg">
+              {sale.title}
+            </h3>
+            <div className="mt-2 space-y-0.5 text-[11px] text-white/75 sm:text-xs">
+              <p className="flex items-center gap-1">
+                <MapPin className="size-3 shrink-0" aria-hidden />
+                {sale.city}, {sale.state}
+              </p>
+              {dateSummary ? (
+                <p className="flex items-center gap-1">
+                  <CalendarRange className="size-3 shrink-0" aria-hidden />
+                  {dateSummary}
+                </p>
+              ) : null}
+            </div>
+          </div>
         </div>
       </Link>
     );
@@ -162,11 +154,9 @@ export default function SaleCard({
 
         <div className="flex flex-col justify-between gap-4 p-5 sm:p-6">
           <div className="space-y-3">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <h3 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-xl">
-                {sale.title}
-              </h3>
-            </div>
+            <h3 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-xl">
+              {sale.title}
+            </h3>
 
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="size-4 shrink-0 text-accent" aria-hidden />

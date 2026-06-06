@@ -1,12 +1,13 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import type { ActionResult } from "@/app/dashboard/actions";
 import {
   SALE_PHOTOS_BUCKET,
   maxPhotosForOperatorTier,
   salePhotoPublicUrl,
 } from "@/config/sale-photos";
-import type { ActionResult } from "@/app/dashboard/actions";
+import { isPastEndDate, isSaleEditable } from "@/lib/sale-status";
+import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export type SalePhotoRow = {
@@ -24,6 +25,40 @@ export type SalePhotosState = {
 
 function expectedKeyPrefix(operatorId: string, saleId: string): string {
   return `sales/${operatorId}/${saleId}/`;
+}
+
+async function assertSalePhotosEditable(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  saleId: string,
+  userId: string,
+): Promise<ActionResult> {
+  const { data: sale, error } = await supabase
+    .from("sales")
+    .select("status, end_date")
+    .eq("id", saleId)
+    .eq("operator_id", userId)
+    .maybeSingle();
+
+  if (error) return { ok: false, message: error.message };
+  if (!sale) return { ok: false, message: "Sale not found." };
+
+  if (sale.status === "published" && isPastEndDate(sale.end_date)) {
+    await supabase
+      .from("sales")
+      .update({ status: "ended" })
+      .eq("id", saleId)
+      .eq("operator_id", userId);
+    return {
+      ok: false,
+      message: "This sale has ended and can no longer be edited.",
+    };
+  }
+
+  if (!isSaleEditable(sale.status, sale.end_date)) {
+    return { ok: false, message: "Live listings can't be edited." };
+  }
+
+  return { ok: true };
 }
 
 export async function getSalePhotosState(
@@ -91,6 +126,9 @@ export async function registerSalePhotoAfterUpload(
   if (!storagePath.startsWith(prefix) || storagePath.includes("..")) {
     return { ok: false, message: "Invalid storage path." };
   }
+
+  const editable = await assertSalePhotosEditable(supabase, saleId, user.id);
+  if (!editable.ok) return editable;
 
   const { data: sale, error: saleErr } = await supabase
     .from("sales")
@@ -166,6 +204,9 @@ export async function deleteSalePhoto(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Not signed in." };
+
+  const editable = await assertSalePhotosEditable(supabase, saleId, user.id);
+  if (!editable.ok) return editable;
 
   const { data: photo, error: fetchErr } = await supabase
     .from("sale_photos")

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { isPastEndDate, todayIsoDate } from "@/lib/sale-status";
 import { buildRegionSlug } from "@/utils/sales";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -130,6 +131,19 @@ export async function listOperatorSales(): Promise<
   return { ok: true, data: data ?? [] };
 }
 
+/** Mark published sales as ended once their last sale day has passed. */
+export async function syncExpiredSalesForOperator(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  operatorId: string,
+): Promise<void> {
+  await supabase
+    .from("sales")
+    .update({ status: "ended" })
+    .eq("operator_id", operatorId)
+    .eq("status", "published")
+    .lt("end_date", todayIsoDate());
+}
+
 /** Operator-facing sale row for the create-sale wizard and location form. */
 export type OperatorSaleWizard = {
   id: string;
@@ -177,12 +191,39 @@ export async function getSaleForOperator(
 
   if (error) return { ok: false, message: error.message };
   if (!data) return { ok: false, message: "Sale not found." };
+
+  if (data.status === "published" && isPastEndDate(data.end_date)) {
+    await supabase
+      .from("sales")
+      .update({ status: "ended" })
+      .eq("id", saleId)
+      .eq("operator_id", user.id);
+    data.status = "ended";
+  }
+
   return { ok: true, data };
 }
 
 export async function deleteSale(saleId: string): Promise<ActionResult> {
   const { supabase, user } = await getUser();
   if (!user) return { ok: false, message: "Not signed in." };
+
+  const { data: sale, error: fetchError } = await supabase
+    .from("sales")
+    .select("status, end_date")
+    .eq("id", saleId)
+    .eq("operator_id", user.id)
+    .maybeSingle();
+
+  if (fetchError) return { ok: false, message: fetchError.message };
+  if (!sale) return { ok: false, message: "Sale not found." };
+
+  if (sale.status === "published" && !isPastEndDate(sale.end_date)) {
+    return {
+      ok: false,
+      message: "Live listings can't be deleted. Wait until the sale ends.",
+    };
+  }
 
   const { error } = await supabase
     .from("sales")

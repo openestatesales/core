@@ -1,20 +1,15 @@
-import { getSaleForOperator } from "@/app/dashboard/actions";
+import { requireEditableSale } from "@/app/dashboard/sales/require-editable-sale";
 import {
   getSalePhotosState,
   type SalePhotosState,
 } from "@/app/dashboard/sale-photos-actions";
 import SalePicturesStep from "@/components/operator/SalePicturesStep";
-import { notFound } from "next/navigation";
 
 type Props = { params: Promise<{ saleId: string }> };
 
 export default async function OperatorSalePicturesPage({ params }: Props) {
   const { saleId } = await params;
-  const result = await getSaleForOperator(saleId);
-
-  if (!result.ok || !result.data) {
-    notFound();
-  }
+  const sale = await requireEditableSale(saleId);
 
   const photos = await getSalePhotosState(saleId);
   const emptyPhotosState: SalePhotosState = {
@@ -28,7 +23,7 @@ export default async function OperatorSalePicturesPage({ params }: Props) {
   return (
     <SalePicturesStep
       saleId={saleId}
-      initial={result.data}
+      initial={sale}
       photosState={photosState}
     />
   );

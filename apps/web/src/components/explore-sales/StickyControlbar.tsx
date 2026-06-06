@@ -1,37 +1,39 @@
-'use client';
+"use client";
 
-export type DateRange = 'all' | 'today' | 'weekend' | 'week' | 'month';
-export type SaleType = 'all' | 'company' | 'personal';
-export type ViewMode = 'list' | 'map';
+import { LayoutGrid, Loader2, Map, Search } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+export type DateRange = "all" | "today" | "weekend" | "week" | "month";
+export type SaleType = "all" | "company" | "personal";
+export type ViewMode = "list" | "map";
 
 type StickyControlBarProps = {
-  // Location (controlled)
   location: string;
   onChangeLocation: (value: string) => void;
   onSubmitLocation?: () => void;
   onFocusLocation?: () => void;
   isUpdatingLocation?: boolean;
-
-  // Filters (controlled)
   dateRange: DateRange;
-  distance: number; // miles
+  distance: number;
   saleType: SaleType;
-
-  // Chip actions
   onCycleDateRange: () => void;
-  onCycleDistance: () => void; // cycle [5,10,25,50,100]
+  onCycleDistance: () => void;
   onCycleSaleType: () => void;
-
-  // View (controlled)
   viewMode: ViewMode;
   onSetViewMode: (view: ViewMode) => void;
-
-  // Counts
   salesCount: number;
-  itemsCount?: number;
-
   className?: string;
 };
+
+function chipClass(active: boolean) {
+  return cn(
+    "rounded-full px-3.5 py-1.5 text-xs font-medium whitespace-nowrap transition",
+    active
+      ? "bg-foreground text-background shadow-sm"
+      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground dark:bg-zinc-900/80",
+  );
+}
 
 export default function StickyControlBar({
   location,
@@ -48,34 +50,37 @@ export default function StickyControlBar({
   viewMode,
   onSetViewMode,
   salesCount,
-  className = '',
+  className = "",
 }: StickyControlBarProps) {
   const dateLabel =
-    dateRange === 'all'
-      ? 'All Dates'
-      : dateRange === 'today'
-      ? 'Today'
-      : dateRange === 'weekend'
-      ? 'This Weekend'
-      : dateRange === 'week'
-      ? 'This Week'
-      : dateRange === 'month'
-      ? 'This Month'
-      : dateRange;
+    dateRange === "all"
+      ? "Any date"
+      : dateRange === "today"
+        ? "Today"
+        : dateRange === "weekend"
+          ? "This weekend"
+          : dateRange === "week"
+            ? "This week"
+            : "This month";
 
   const saleTypeLabel =
-    saleType === 'all' ? 'All Sales' : saleType === 'company' ? 'Company' : 'Personal';
+    saleType === "all" ? "All types" : saleType === "company" ? "Company" : "Private";
 
   return (
     <div
-      className={`sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md dark:border-zinc-800/90 dark:bg-surface/85 ${className}`}
+      className={cn(
+        "sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md",
+        className,
+      )}
     >
-      <div className="w-full px-3 sm:px-4">
-        {/* Stack on mobile, row on md+ */}
-        <div className="flex flex-col gap-2 py-2 md:flex-row md:items-center md:gap-2 md:py-3">
-          {/* Location */}
-          <div className="order-1 md:order-1 w-full md:flex-1 md:max-w-sm">
-            <div className="relative">
+      <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative min-w-0 flex-1">
+              <Search
+                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden
+              />
               <input
                 type="text"
                 value={location}
@@ -84,107 +89,87 @@ export default function StickyControlBar({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") onSubmitLocation?.();
                 }}
-                placeholder="Address, city, or ZIP"
-                className={`w-full rounded-md border border-border bg-background px-3 py-2 pr-9 text-sm text-foreground placeholder:text-muted-foreground transition-colors hover:bg-accent/[0.04] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:bg-zinc-950/70 ${
-                  isUpdatingLocation ? "border-accent bg-accent/[0.06] dark:bg-zinc-950/80" : ""
-                }`}
-                aria-label="Location"
+                placeholder="City, neighborhood, or ZIP"
+                className={cn(
+                  "h-12 w-full rounded-full border border-border bg-muted/30 pl-11 pr-4 text-sm text-foreground",
+                  "placeholder:text-muted-foreground",
+                  "focus:border-accent focus:bg-background focus:outline-none focus:ring-2 focus:ring-accent/25",
+                  "dark:bg-zinc-950/50",
+                  isUpdatingLocation && "border-accent/50",
+                )}
+                aria-label="Search location"
                 autoComplete="street-address"
               />
-              <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2">
-                {isUpdatingLocation ? (
-                  <div className="w-4 h-4">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent border-t-transparent" />
-                  </div>
-                ) : (
-                  <svg
-                    className="h-4 w-4 text-muted-foreground"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
+              {isUpdatingLocation ? (
+                <Loader2
+                  className="absolute right-4 top-1/2 size-4 -translate-y-1/2 animate-spin text-accent"
+                  aria-hidden
+                />
+              ) : null}
+            </div>
+
+            <div className="flex shrink-0 rounded-full border border-border bg-muted/40 p-1 dark:bg-zinc-900/60">
+              <button
+                type="button"
+                onClick={() => onSetViewMode("list")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition",
+                  viewMode === "list"
+                    ? "bg-foreground text-background shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
-              </div>
+                aria-pressed={viewMode === "list"}
+              >
+                <LayoutGrid className="size-3.5" aria-hidden />
+                <span className="hidden sm:inline">Browse</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onSetViewMode("map")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition",
+                  viewMode === "map"
+                    ? "bg-foreground text-background shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+                aria-pressed={viewMode === "map"}
+              >
+                <Map className="size-3.5" aria-hidden />
+                <span className="hidden sm:inline">Map</span>
+              </button>
             </div>
           </div>
 
-          {/* Filter Chips (scrollable row on mobile) */}
-          <div className="order-3 md:order-2 -mx-1 md:mx-0">
-            <div className="scrollbar-hide flex items-center gap-2 overflow-x-auto overscroll-x-contain px-1 [-webkit-overflow-scrolling:touch] md:overflow-visible">
+          <div className="flex items-center gap-2">
+            <div className="scrollbar-hide flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-0.5">
               <button
-                onClick={onCycleDateRange}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium whitespace-nowrap text-foreground transition-colors hover:bg-accent/[0.04] dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:hover:bg-zinc-950/70 md:py-1.5"
                 type="button"
+                onClick={onCycleDateRange}
+                className={chipClass(dateRange !== "all")}
               >
                 {dateLabel}
               </button>
               <button
-                onClick={onCycleDistance}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium whitespace-nowrap text-foreground transition-colors hover:bg-accent/[0.04] dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:hover:bg-zinc-950/70 md:py-1.5"
                 type="button"
+                onClick={onCycleDistance}
+                className={chipClass(distance !== 25)}
               >
                 {distance} mi
               </button>
               <button
-                onClick={onCycleSaleType}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium whitespace-nowrap text-foreground transition-colors hover:bg-accent/[0.04] dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-100 dark:hover:bg-zinc-950/70 md:py-1.5"
                 type="button"
+                onClick={onCycleSaleType}
+                className={chipClass(saleType !== "all")}
               >
                 {saleTypeLabel}
               </button>
             </div>
-          </div>
-
-          {/* Mobile: List | Map */}
-          <div className="order-4 md:order-3 w-full md:w-auto">
-            <div className="flex w-full rounded-lg border border-border bg-zinc-100/80 p-1 dark:border-zinc-800 dark:bg-zinc-900/60 md:w-auto lg:inline-flex lg:min-w-0">
-              <div className="flex flex-1 gap-0.5 lg:hidden">
-                <button
-                  onClick={() => {
-                    onSetViewMode("list");
-                  }}
-                  className={`min-w-0 flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 md:py-1.5 ${
-                    viewMode === "list"
-                      ? "bg-accent text-white shadow-sm"
-                      : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-                  }`}
-                  type="button"
-                  aria-pressed={viewMode === "list"}
-                >
-                  List
-                </button>
-                <button
-                  onClick={() => {
-                    onSetViewMode("map");
-                  }}
-                  className={`min-w-0 flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 md:py-1.5 ${
-                    viewMode === "map"
-                      ? "bg-accent text-white shadow-sm"
-                      : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-                  }`}
-                  type="button"
-                  aria-pressed={viewMode === "map"}
-                >
-                  Map
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Results Count (right on desktop, under controls on mobile) */}
-          <div
-            className="order-2 text-sm font-medium text-muted-foreground md:order-4 md:ml-auto"
-            aria-live="polite"
-          >
-            {`${salesCount} sales`}
+            <p
+              className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground"
+              aria-live="polite"
+            >
+              {salesCount} sale{salesCount !== 1 ? "s" : ""}
+            </p>
           </div>
         </div>
       </div>

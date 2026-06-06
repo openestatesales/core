@@ -1,16 +1,11 @@
-import { getSaleForOperator } from "@/app/dashboard/actions";
+import { requireEditableSale } from "@/app/dashboard/sales/require-editable-sale";
 import SalePublishForm from "@/components/operator/SalePublishForm";
-import { notFound } from "next/navigation";
 
 type Props = { params: Promise<{ saleId: string }> };
 
 export default async function OperatorSalePublishPage({ params }: Props) {
   const { saleId } = await params;
-  const result = await getSaleForOperator(saleId);
+  const sale = await requireEditableSale(saleId);
 
-  if (!result.ok || !result.data) {
-    notFound();
-  }
-
-  return <SalePublishForm saleId={saleId} initial={result.data} />;
+  return <SalePublishForm saleId={saleId} initial={sale} />;
 }

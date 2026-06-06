@@ -12,6 +12,12 @@ import {
 
 import { CreateDraftSaleButton } from "@/components/operator/CreateDraftSaleButton";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  resolveSaleStatus,
+  saleStatusLabel,
+  saleStatusStyle,
+  type SaleStatus,
+} from "@/lib/sale-status";
 import { cn } from "@/lib/utils";
 import { salePublicPath } from "@/utils/sales";
 
@@ -28,7 +34,7 @@ export type DashboardSaleRow = {
   listing_slug: string;
 };
 
-type StatusFilter = "all" | "draft" | "published" | "ended";
+type StatusFilter = "all" | SaleStatus;
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
@@ -52,30 +58,12 @@ function formatRange(start: string, end: string): string {
   return `${a.toLocaleDateString("en-US", opts)} – ${b.toLocaleDateString("en-US", { ...opts, ...y })}`;
 }
 
-function statusStyle(status: string): string {
-  switch (status) {
-    case "published":
-      return "bg-emerald-500/15 text-emerald-800 ring-emerald-500/25 dark:text-emerald-200";
-    case "draft":
-      return "bg-amber-500/15 text-amber-900 ring-amber-500/25 dark:text-amber-100";
-    case "ended":
-      return "bg-zinc-500/15 text-zinc-700 ring-zinc-500/20 dark:text-zinc-300";
-    default:
-      return "bg-muted text-muted-foreground ring-border";
-  }
+function statusStyle(status: string, endDate: string): string {
+  return saleStatusStyle(status, endDate);
 }
 
-function statusLabel(status: string): string {
-  switch (status) {
-    case "published":
-      return "Live";
-    case "draft":
-      return "Draft";
-    case "ended":
-      return "Ended";
-    default:
-      return status;
-  }
+function statusLabel(status: string, endDate: string): string {
+  return saleStatusLabel(status, endDate);
 }
 
 type Props = {
@@ -94,7 +82,8 @@ export function OperatorDashboardHub({
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return sales.filter((s) => {
-      const okStatus = status === "all" || s.status === status;
+      const displayStatus = resolveSaleStatus(s.status, s.end_date);
+      const okStatus = status === "all" || displayStatus === status;
       const okSearch =
         !q ||
         s.title.toLowerCase().includes(q) ||
@@ -108,15 +97,6 @@ export function OperatorDashboardHub({
     <div className="min-h-full flex-1 bg-background">
       <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
         <header className="flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="font-display text-2xl uppercase tracking-tight text-foreground sm:text-3xl">
-              Dashboard
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Draft, publish, and manage your estate sales.
-            </p>
-          </div>
-
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             {showOperatorProfileLink ? (
               <Link
@@ -199,9 +179,11 @@ export function OperatorDashboardHub({
 }
 
 function SaleHubCard({ sale }: { sale: DashboardSaleRow }) {
+  const displayStatus = resolveSaleStatus(sale.status, sale.end_date);
   const dates = formatRange(sale.start_date, sale.end_date);
   const publicHref = salePublicPath(sale.region_slug, sale.listing_slug);
   const editHref = `/dashboard/sales/${sale.id}/location`;
+  const overviewHref = `/dashboard/sales/${sale.id}`;
 
   return (
     <article className="group flex h-full flex-col rounded-2xl border border-border bg-card/90 shadow-sm transition hover:border-accent/35 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/60 dark:hover:border-accent/30">
@@ -213,10 +195,10 @@ function SaleHubCard({ sale }: { sale: DashboardSaleRow }) {
           <span
             className={cn(
               "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1",
-              statusStyle(sale.status),
+              statusStyle(sale.status, sale.end_date),
             )}
           >
-            {statusLabel(sale.status)}
+            {statusLabel(sale.status, sale.end_date)}
           </span>
         </div>
 
@@ -235,26 +217,41 @@ function SaleHubCard({ sale }: { sale: DashboardSaleRow }) {
         ) : null}
 
         <div className="mt-auto flex flex-wrap gap-2 border-t border-border pt-4 dark:border-zinc-800">
-          <Link
-            href={editHref}
-            className={cn(
-              buttonVariants({ size: "sm", variant: "default" }),
-              "gap-1 rounded-lg",
-            )}
-          >
-            Continue
-            <ArrowRight className="size-3.5" aria-hidden />
-          </Link>
-          {sale.status === "published" ? (
+          {displayStatus === "draft" ? (
             <Link
-              href={publicHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ size: "sm", variant: "outline" }), "rounded-lg")}
+              href={editHref}
+              className={cn(
+                buttonVariants({ size: "sm", variant: "default" }),
+                "gap-1 rounded-lg",
+              )}
             >
-              View listing
+              Continue editing
+              <ArrowRight className="size-3.5" aria-hidden />
             </Link>
-          ) : null}
+          ) : (
+            <>
+              <Link
+                href={overviewHref}
+                className={cn(
+                  buttonVariants({ size: "sm", variant: "default" }),
+                  "rounded-lg",
+                )}
+              >
+                View details
+              </Link>
+              <Link
+                href={publicHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  buttonVariants({ size: "sm", variant: "outline" }),
+                  "rounded-lg",
+                )}
+              >
+                View listing
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </article>

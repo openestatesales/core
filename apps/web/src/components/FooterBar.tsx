@@ -131,7 +131,7 @@ export function Footer({ className }: FooterProps) {
               <FooterLink href="/sales">Browse sales</FooterLink>
             </Column>
             <Column title="Company">
-              <FooterLink href="/company">Company</FooterLink>
+              <FooterLink href="/about">About</FooterLink>
               <FooterLink href="/careers">Careers</FooterLink>
             </Column>
             <Column title="Legal">

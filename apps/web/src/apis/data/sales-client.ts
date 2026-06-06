@@ -4,6 +4,7 @@
  */
 
 import type { SaleKindValue } from "@/lib/sale-kinds";
+import { isPastEndDate, isSaleEditable } from "@/lib/sale-status";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { plainTextFromHtml } from "@/utils/html";
 import {
@@ -17,6 +18,43 @@ import type { SaleDateRow } from "@/form-schemas/sale";
 export type MutationResult<T = void> =
   | { ok: true; data?: T }
   | { ok: false; message: string };
+
+async function requireEditableSaleRow(
+  supabase: NonNullable<ReturnType<typeof getSupabaseBrowserClient>>,
+  saleId: string,
+  userId: string,
+): Promise<MutationResult> {
+  const { data: row, error } = await supabase
+    .from("sales")
+    .select("status, end_date")
+    .eq("id", saleId)
+    .eq("operator_id", userId)
+    .maybeSingle();
+
+  if (error) return { ok: false, message: error.message };
+  if (!row) return { ok: false, message: "Sale not found." };
+
+  if (row.status === "published" && isPastEndDate(row.end_date)) {
+    await supabase
+      .from("sales")
+      .update({ status: "ended" })
+      .eq("id", saleId)
+      .eq("operator_id", userId);
+    return {
+      ok: false,
+      message: "This sale has ended and can no longer be edited.",
+    };
+  }
+
+  if (!isSaleEditable(row.status, row.end_date)) {
+    return {
+      ok: false,
+      message: "Live listings can't be edited.",
+    };
+  }
+
+  return { ok: true };
+}
 
 async function ensureOperatorRow(
   supabase: NonNullable<ReturnType<typeof getSupabaseBrowserClient>>,
@@ -142,6 +180,9 @@ export async function updateSaleBasics(
     return { ok: false, message: "Not signed in." };
   }
 
+  const editable = await requireEditableSaleRow(supabase, input.saleId, user.id);
+  if (!editable.ok) return editable;
+
   const title = input.title.trim();
   if (!title) {
     return { ok: false, message: "Enter a sale name." };
@@ -215,6 +256,9 @@ export async function updateSaleListingCopy(
     return { ok: false, message: "Not signed in." };
   }
 
+  const editable = await requireEditableSaleRow(supabase, input.saleId, user.id);
+  if (!editable.ok) return editable;
+
   const { data: row, error: fetchError } = await supabase
     .from("sales")
     .select("title, start_date, city, state")
@@ -269,6 +313,9 @@ export async function updateSaleSchedule(
     return { ok: false, message: "Add at least one sale day." };
   }
 
+  const editable = await requireEditableSaleRow(supabase, input.saleId, user.id);
+  if (!editable.ok) return editable;
+
   const days = [...input.saleDates].sort((a, b) => a.date.localeCompare(b.date));
   const startDate = days[0]!.date;
   const endDate = days[days.length - 1]!.date;
@@ -318,6 +365,9 @@ export async function publishSale(saleId: string): Promise<
   if (authError || !user) {
     return { ok: false, message: "Not signed in." };
   }
+
+  const editable = await requireEditableSaleRow(supabase, saleId, user.id);
+  if (!editable.ok) return editable;
 
   const { data: row, error: fetchError } = await supabase
     .from("sales")

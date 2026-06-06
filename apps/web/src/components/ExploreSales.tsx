@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import SalesMap from "@/components/SalesMap";
-import ActiveFilters from "@/components/explore-sales/ActiveFilters";
 import EmptySales from "@/components/explore-sales/EmptySales";
 import SaleCard, { type ExploreSale } from "@/components/explore-sales/SaleCard";
 import StickyControlBar, {
@@ -17,6 +16,9 @@ import { geocodeLocation } from "@/utils/googleMaps";
 type Props = {
   sales: ExploreSale[];
   initialCenter?: [number, number];
+  /** Optional hero — use on home page */
+  heroTitle?: string;
+  heroSubtitle?: string;
 };
 
 const distanceCycle = [5, 10, 25, 50, 100] as const;
@@ -26,13 +28,15 @@ const saleTypeCycle: SaleType[] = ["all", "company", "personal"];
 export default function ExploreSales({
   sales,
   initialCenter = [33.749, -84.388],
+  heroTitle,
+  heroSubtitle,
 }: Props) {
   const [center, setCenter] = useState<[number, number]>(initialCenter);
   const [location, setLocation] = useState("");
   const [dateRange, setDateRange] = useState<DateRange>("all");
   const [distance, setDistance] = useState<number>(25);
   const [saleType, setSaleType] = useState<SaleType>("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("map");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
   const geocodeSeq = useRef(0);
   const lastGeocodedQuery = useRef<string>("");
@@ -101,6 +105,21 @@ export default function ExploreSales({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
+      {heroTitle ? (
+        <header className="border-b border-border/60 bg-background px-4 py-10 sm:px-6 sm:py-12 md:py-14">
+          <div className="mx-auto max-w-7xl">
+            <h1 className="max-w-3xl font-display text-4xl uppercase leading-[0.95] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+              {heroTitle}
+            </h1>
+            {heroSubtitle ? (
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+                {heroSubtitle}
+              </p>
+            ) : null}
+          </div>
+        </header>
+      ) : null}
+
       <StickyControlBar
         location={location}
         onChangeLocation={setLocation}
@@ -116,6 +135,7 @@ export default function ExploreSales({
               setCenter(nextCenter);
               setLocation(label);
               lastGeocodedQuery.current = label.trim().toLowerCase();
+              setViewMode("map");
             })
             .catch(() => {
               // noop
@@ -134,78 +154,59 @@ export default function ExploreSales({
         viewMode={viewMode}
         onSetViewMode={setViewMode}
         salesCount={filteredSales.length}
-        itemsCount={0}
       />
 
-      <div
-        className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-hidden",
-          "lg:min-h-[min(900px,calc(100dvh-7.5rem))] lg:flex-row",
-        )}
-      >
-        {/* Map — left; full-width on mobile when map mode */}
-        <div
-          className={cn(
-            "relative min-h-[48vh] w-full min-w-0 bg-muted lg:min-h-0 lg:flex-[1.2_1_0%]",
-            viewMode === "list" && "hidden lg:block",
-          )}
-        >
-          <div className="absolute inset-0 min-h-[48vh] lg:min-h-full">
-            <SalesMap
-              sales={filteredSales}
-              center={center}
-              distance={distance}
-              onCenterChange={(c) => {
-                setCenter(c);
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Results — right; 2×n grid on lg+; full-width list on mobile */}
-        <aside
-          className={cn(
-            "flex w-full flex-col overflow-hidden border-t border-border bg-background",
-            "lg:w-[min(100%,440px)] lg:shrink-0 lg:border-l lg:border-t-0 xl:w-[min(100%,500px)]",
-            viewMode === "map" && "hidden max-h-none lg:flex",
-          )}
-        >
-          <div className="shrink-0 border-b border-border bg-background/95 px-2 py-1.5 backdrop-blur-sm sm:px-3 lg:sticky lg:top-0 lg:z-10">
-            <ActiveFilters
-              filters={{ dateRange, saleType, distance }}
-              salesCount={filteredSales.length}
-              className="mb-0 rounded-lg border-0 bg-transparent p-2 shadow-none sm:p-3"
-            />
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-8 pt-2 sm:px-3">
+      {viewMode === "list" ? (
+        <main className="flex-1 bg-background">
+          <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
             {filteredSales.length === 0 ? (
-              <div className="rounded-xl border border-border bg-card/90 p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/50 sm:p-6">
+              <div className="rounded-2xl border border-border bg-card/90 p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/50">
                 <EmptySales
                   title={sales.length === 0 ? undefined : "No matching sales"}
                   subtitle={
                     sales.length === 0
                       ? undefined
-                      : "Try another search or loosen filters."
+                      : "Try another location or loosen your filters."
                   }
                   showTips={sales.length === 0}
                 />
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <div
+                className={cn(
+                  "grid gap-3 sm:gap-4",
+                  "grid-cols-2 md:grid-cols-3 xl:grid-cols-4",
+                )}
+              >
                 {filteredSales.map((s, index) => (
                   <SaleCard
                     key={s.id}
                     sale={s}
-                    variant="grid"
+                    variant="editorial"
                     priority={index < 8}
                   />
                 ))}
               </div>
             )}
           </div>
-        </aside>
-      </div>
+        </main>
+      ) : (
+        <div
+          className={cn(
+            "relative min-h-[min(720px,calc(100dvh-11rem))] flex-1 bg-zinc-950",
+            "lg:min-h-[min(820px,calc(100dvh-12rem))]",
+          )}
+        >
+          <SalesMap
+            sales={filteredSales}
+            center={center}
+            distance={distance}
+            onCenterChange={(c) => {
+              setCenter(c);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
