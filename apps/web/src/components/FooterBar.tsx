@@ -125,14 +125,10 @@ export function Footer({ className }: FooterProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
-            <Column title="Product">
-              <FooterLink href="/pricing">Pricing</FooterLink>
-              <FooterLink href="/sales">Browse sales</FooterLink>
-            </Column>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             <Column title="Company">
               <FooterLink href="/about">About</FooterLink>
-              <FooterLink href="/careers">Careers</FooterLink>
+              <FooterLink href="/pricing">Pricing</FooterLink>
             </Column>
             <Column title="Legal">
               <FooterLink href="/terms">Terms</FooterLink>
@@ -145,10 +141,6 @@ export function Footer({ className }: FooterProps) {
               <FooterLink href={REPO} external>
                 GitHub
               </FooterLink>
-            </Column>
-            <Column title="Community">
-              <FooterLink href="/blog">Blog</FooterLink>
-              <FooterLink href="/status">Status</FooterLink>
             </Column>
           </div>
         </div>
