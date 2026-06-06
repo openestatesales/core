@@ -24,7 +24,7 @@ const STAGE_COPY: Record<AppStage, StageVisual> = {
   experimental: {
     dot: "red",
     title: "Under construction:",
-    body: "Feel free to explore and break stuff.",
+    body: "We're still working on the site. Join the waitlist to get early access. Login now if you want to help us test and provide feedback.",
   },
   alpha: {
     dot: "brand",
